@@ -1,0 +1,21 @@
+# Editor Files and Folders
+
+.idea/
+.vscode/
+.DS_Store
+*~
+\#*#
+
+# Build Files and Binaries
+
+*.o
+babel
+*.so
+*.txt
+cmake-build-*/
+build.sh
+
+# Documentation Generation Files
+
+doc/latex/
+doc/html/
