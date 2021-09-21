@@ -1,1 +1,1 @@
-g++ -std=c++17 main.cpp PortAudio.cpp -lpthread -lportaudio
+g++ -Wall -Wextra -Weffc++ -std=c++17 *.cpp -lpthread -lportaudio

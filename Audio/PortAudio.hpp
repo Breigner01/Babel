@@ -1,41 +1,42 @@
 #pragma once
 
 #include "IAudio.hpp"
+#include "Exception.hpp"
 #include <portaudio.h>
+#include "PortAudioInputDevice.hpp"
+#include "PortAudioOutputDevice.hpp"
 
-class PortAudio : public IAudio
+template<typename T>
+class PortAudio : public IAudio<T>
 {
 private:
-    PaStreamParameters m_inputParameters;
-    PaStreamParameters m_outputParameters;
-    PaStream *m_inputStream{};
-    PaStream *m_outputStream{};
-    std::vector<short> m_inputBuffer{};
-    std::vector<short> m_outputBuffer{};
+    PaError m_error;
+    std::unique_ptr<IAudioInputDevice<T>> m_inputDevice;
+    std::unique_ptr<IAudioOutputDevice<T>> m_outputDevice;
 public:
-    PortAudio();
-    ~PortAudio() override;
-    void play() override;
-    void stop() override;
-    void startRecord() override;
-    void stopRecord() override;
-    std::vector<short> &getInput() override {return m_inputBuffer;}
-    std::vector<short> &getOutput() override {return m_outputBuffer;}
+    PortAudio()
+    {
+        m_error = Pa_Initialize();
+        if (m_error != paNoError)
+            throw babel::exception(Pa_GetErrorText(m_error));
 
-    // Class implementation
+        m_inputDevice = std::make_unique<PortAudioInputDevice<T>>();
+        m_outputDevice = std::make_unique<PortAudioOutputDevice<T>>();
+    }
 
-    static int RecordCallback(const void* pInputBuffer, 
-								void* pOutputBuffer, 
-								unsigned long iFramesPerBuffer, 
-								const PaStreamCallbackTimeInfo* timeInfo, 
-								PaStreamCallbackFlags statusFlags, void *data);
+    ~PortAudio() override
+    {
+        if (m_error == paNoError)
+            Pa_Terminate();
+    }
 
-    static int PlaybackCallback(const void* pInputBuffer, 
-									void* pOutputBuffer, 
-									unsigned long iFramesPerBuffer, 
-									const PaStreamCallbackTimeInfo* timeInfo, 
-									PaStreamCallbackFlags statusFlags, void *data);
+    std::unique_ptr<IAudioInputDevice<T>> &getInputDevice() override
+    {
+        return m_inputDevice;
+    }
 
-    void paStreamFinishedMethod();
-    static void paStreamFinished(void* userData);
+    std::unique_ptr<IAudioOutputDevice<T>> &getOutputDevice() override
+    {
+        return m_outputDevice;
+    }
 };

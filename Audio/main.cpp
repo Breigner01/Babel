@@ -6,22 +6,22 @@ int main()
 {
     std::string in;
 
-    std::unique_ptr<IAudio> pa = std::make_unique<PortAudio>();
+    std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
 
     std::cout << "Record Started" << std::endl;
-    pa->startRecord();
+    pa->getInputDevice()->startRecord();
     
     std::cout << "Press Enter to stop the record" << std::endl;
     std::getline(std::cin, in);
 
     std::cout << "Record Stoped" << std::endl;
-    pa->stopRecord();
+    pa->getInputDevice()->stopRecord();
 
     std::cout << "Sound Transfert from Input buffer to Output Buffer" << std::endl;
-    pa->getOutput() = pa->getInput();
+    pa->getOutputDevice()->getBuffer() = pa->getInputDevice()->getBuffer();
 
     std::cout << "Play Sound" << std::endl;
-    pa->play();
+    pa->getOutputDevice()->play();
 
     std::cout << "Press Enter to exit" << std::endl;
     std::getline(std::cin, in);
