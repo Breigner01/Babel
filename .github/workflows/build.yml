@@ -20,11 +20,18 @@ jobs:
 
         steps:
             - uses: actions/checkout@v2
+            - uses: actions/setup-python@v2
+
+            - name: Install & Setup Conan
+              run: |
+                pip install conan
+                conan profile new default --detect
+                conan profile update settings.compiler.libcxx=libstdc++11 default
 
             - name: Create Build Directory
               run: mkdir build
 
-            - name: Install Conan Dependencies
+            - name: Install Dependencies with Conan
               working-directory: build
               run: conan install .. --build=missing
 
