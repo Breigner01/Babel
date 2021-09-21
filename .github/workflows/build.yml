@@ -38,6 +38,10 @@ jobs:
               if: ${{ matrix.os != 'windows-latest' }}
               run: conan profile update settings.compiler.libcxx=${{ matrix.conan-cxx-version }} default
 
+            - name: Install Required Dependencies on Ubuntu
+              if: ${{ matrix.os == 'ubuntu-latest' }}
+              run: sudo apt install -y libgl-dev
+
             - name: Create Build Directory
               run: mkdir build
 
