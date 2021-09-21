@@ -14,6 +14,11 @@ jobs:
             matrix:
                 os: [windows-latest, ubuntu-latest, macos-latest]
                 build_type: [Debug, Release]
+                include:
+                    - os: ubuntu-latest
+                      conan-cxx-version: libstdc++11
+                    - os: macos-latest
+                      conan-cxx-version: libc++
 
         name: Build Babel
         runs-on: ${{ matrix.os }}
@@ -26,9 +31,12 @@ jobs:
               run: |
                 pip install conan
                 conan profile new default --detect
-                conan profile update settings.compiler.libcxx=libstdc++11 default
                 conan remote add bincrafters https://bincrafters.jfrog.io/artifactory/api/conan/public-conan
                 conan config set general.revisions_enabled=1
+
+            - name: Set C++ Standard
+              if: ${{ matrix.os != 'windows-latest' }}
+              run: conan profile update settings.compiler.libcxx=${{ matrix.conan-cxx-version }} default
 
             - name: Create Build Directory
               run: mkdir build
