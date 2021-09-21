@@ -3,6 +3,7 @@
 #include <portaudio.h>
 #include "IAudio.hpp"
 #include "Exception.hpp"
+#include "PortAudioTypeChecker.hpp"
 
 template<typename T>
 class PortAudioOutputDevice : public IAudioDevice<T>
@@ -14,6 +15,7 @@ private:
 
     unsigned long m_framesPerBuffer;
     double m_sampleRate;
+    bool m_muted = false;
 public:
     PortAudioOutputDevice(unsigned long framesPerBuffer = 64, double sampleRate = 16000.0)
         : m_framesPerBuffer(framesPerBuffer), m_sampleRate(sampleRate)
@@ -23,18 +25,18 @@ public:
             throw babel::exception(Pa_GetErrorText(err));
         m_parameters.channelCount = 1;
 
-        /*if constexpr (std::is_same_v<T, unsigned char>)
+        PortAudioTypeChecker<T, unsigned char, char, short, int, float>();
+
+        if constexpr (std::is_same_v<T, unsigned char>)
             m_parameters.sampleFormat = paUInt8;
         else if constexpr (std::is_same_v<T, char>)
             m_parameters.sampleFormat = paInt8;
-        else if constexpr (std::is_same_v<T, short>)*/
+        else if constexpr (std::is_same_v<T, short>)
             m_parameters.sampleFormat = paInt16;
-        /*else if constexpr (std::is_same_v<T, int>)
+        else if constexpr (std::is_same_v<T, int>)
             m_parameters.sampleFormat = paInt32;
         else if constexpr (std::is_same_v<T, float>)
             m_parameters.sampleFormat = paFloat32;
-        else
-            static_assert(false, "Invalid template parameter to build PortAudio");*/
 
         m_parameters.suggestedLatency = Pa_GetDeviceInfo(m_parameters.device)->defaultLowOutputLatency;
         m_parameters.hostApiSpecificStreamInfo = NULL;
@@ -67,12 +69,12 @@ public:
 
     void mute() override
     {
-
+        m_muted = true;
     }
     
     void unmute() override
     {
-
+        m_muted = false;
     }
 
     std::vector<T> &getBuffer() noexcept override
@@ -86,10 +88,10 @@ public:
     }
 
     static int playCallback(const void*, 
-						void* pOutputBuffer, 
-						unsigned long iFramesPerBuffer, 
-						const PaStreamCallbackTimeInfo*, 
-						PaStreamCallbackFlags, void *data)
+						    void* pOutputBuffer, 
+						    unsigned long iFramesPerBuffer, 
+						    const PaStreamCallbackTimeInfo*, 
+						    PaStreamCallbackFlags, void *data)
     {
         T *pData = static_cast<T *>(pOutputBuffer);
         PortAudioOutputDevice *c = static_cast<PortAudioOutputDevice *>(data);
@@ -97,6 +99,14 @@ public:
 
 	    if (pOutputBuffer == NULL)
 		    return paComplete;
+
+        if (c->m_muted) {
+            while (iOutput < iFramesPerBuffer) {
+				pData[iOutput] = 0;
+				iOutput++;
+		    }
+            return paContinue;
+        }
 
 	    while (iOutput < iFramesPerBuffer)
 	    {
@@ -109,7 +119,7 @@ public:
             }
 
             while (iOutput < iFramesPerBuffer) {
-				pData[iOutput] = 0.0;
+				pData[iOutput] = 0;
 				iOutput++;
 		    }
 		    return paContinue;
