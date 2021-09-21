@@ -1,0 +1,37 @@
+name: Build Babel
+
+on: push
+
+defaults:
+    run:
+        shell: bash
+
+jobs:
+    build:
+
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest, ubuntu-latest, macos-latest]
+                build_type: [Debug, Release]
+
+        name: Build Babel
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Create Build Directory
+              run: mkdir build
+
+            - name: Install Conan Dependencies
+              working-directory: build
+              run: conan install .. --build=missing
+
+            - name: Generate Project Files
+              working-directory: build
+              run: cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+            - name: Build Project
+              working-directory: build
+              run: cmake --build .
