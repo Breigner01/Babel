@@ -67,12 +67,12 @@ public:
             throw babel::exception(Pa_GetErrorText(err));
     }
 
-    void mute() override
+    void mute() noexcept override
     {
         m_muted = true;
     }
     
-    void unmute() override
+    void unmute() noexcept override
     {
         m_muted = false;
     }
@@ -82,7 +82,7 @@ public:
         return m_buffer;
     }
 
-    void clear() noexcept override
+    void clearBuffer() noexcept override
     {
         m_buffer.clear();
     }

@@ -10,11 +10,11 @@ public:
 
     virtual void start() = 0;
     virtual void stop() = 0;
-    virtual void mute() = 0;
-    virtual void unmute() = 0;
+    virtual void mute() noexcept = 0;
+    virtual void unmute() noexcept = 0;
 
     virtual std::vector<T> &getBuffer() noexcept = 0;
-    virtual void clear() noexcept = 0;
+    virtual void clearBuffer() noexcept = 0;
 };
 
 template<typename Input, typename Output = Input>
