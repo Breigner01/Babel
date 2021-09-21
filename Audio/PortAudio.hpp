@@ -6,13 +6,13 @@
 #include "PortAudioInputDevice.hpp"
 #include "PortAudioOutputDevice.hpp"
 
-template<typename T>
-class PortAudio : public IAudio<T>
+template<typename Input, typename Output = Input>
+class PortAudio : public IAudio<Input, Output>
 {
 private:
     PaError m_error;
-    std::unique_ptr<IAudioInputDevice<T>> m_inputDevice;
-    std::unique_ptr<IAudioOutputDevice<T>> m_outputDevice;
+    std::unique_ptr<IAudioDevice<Input>> m_inputDevice;
+    std::unique_ptr<IAudioDevice<Output>> m_outputDevice;
 public:
     PortAudio()
     {
@@ -20,8 +20,8 @@ public:
         if (m_error != paNoError)
             throw babel::exception(Pa_GetErrorText(m_error));
 
-        m_inputDevice = std::make_unique<PortAudioInputDevice<T>>();
-        m_outputDevice = std::make_unique<PortAudioOutputDevice<T>>();
+        m_inputDevice = std::make_unique<PortAudioInputDevice<Input>>();
+        m_outputDevice = std::make_unique<PortAudioOutputDevice<Output>>();
     }
 
     ~PortAudio() override
@@ -30,12 +30,12 @@ public:
             Pa_Terminate();
     }
 
-    std::unique_ptr<IAudioInputDevice<T>> &getInputDevice() override
+    std::unique_ptr<IAudioDevice<Input>> &getInputDevice() override
     {
         return m_inputDevice;
     }
 
-    std::unique_ptr<IAudioOutputDevice<T>> &getOutputDevice() override
+    std::unique_ptr<IAudioDevice<Output>> &getOutputDevice() override
     {
         return m_outputDevice;
     }
