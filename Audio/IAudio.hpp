@@ -13,7 +13,10 @@ public:
     virtual void mute() noexcept = 0;
     virtual void unmute() noexcept = 0;
 
-    virtual std::vector<T> &getBuffer() noexcept = 0;
+    virtual std::vector<T> getBuffer() const noexcept = 0;
+    virtual std::vector<T> popBuffer() noexcept = 0;
+    virtual void setBuffer(std::vector<T>) noexcept = 0;
+    virtual void pushBuffer(const std::vector<T> &) = 0;
     virtual void clearBuffer() noexcept = 0;
 };
 

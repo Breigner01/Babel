@@ -11,7 +11,7 @@ private:
     const std::string m_err;
 public:
     explicit exception(std::string err) : m_err(std::move(err)) {}
-    ~exception() = default;
-    const char *what() const noexcept override {return m_err.c_str();}
+    ~exception() override = default;
+    [[nodiscard]] const char *what() const noexcept override {return m_err.c_str();}
 };
 }
