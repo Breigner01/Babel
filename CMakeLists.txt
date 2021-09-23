@@ -17,18 +17,21 @@ else ()
 endif ()
 
 add_executable(Babel
-        Audio/Exception.hpp
-        Audio/IAudio.hpp
-        Audio/main.cpp
-        Audio/PortAudio.hpp
-        Audio/PortAudioInputDevice.hpp
-        Audio/PortAudioOutputDevice.hpp
-        Audio/PortAudioTypeChecker.hpp
+        src/main.cpp
+        include/Exception.hpp
+        include/Audio/IAudio.hpp
+        include/Audio/PortAudio.hpp
+        include/Audio/PortAudioDevice.hpp
+        include/Audio/PortAudioInputDevice.hpp
+        include/Audio/PortAudioOutputDevice.hpp
+        include/Audio/PortAudioTypeChecker.hpp
+        include/Serializer/IEncoder.hpp
+        include/Serializer/Opus.hpp
 )
 
 target_include_directories(Babel PRIVATE
         ${CONAN_INCLUDE_DIRS}
-        Audio
+        include
 )
 
 target_link_libraries(Babel ${CONAN_LIBS})

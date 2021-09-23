@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
-#include "PortAudio.hpp"
-#include "Opus.hpp"
+#include "Audio/PortAudio.hpp"
+#include "Serializer/Opus.hpp"
 
 /*int main()
 {
