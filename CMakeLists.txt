@@ -8,6 +8,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
+set(CONAN_DISABLE_CHECK_COMPILER 1)
+
 conan_basic_setup()
 
 if (UNIX)
@@ -16,7 +18,7 @@ else ()
     add_compile_options(/W4)
 endif ()
 
-add_executable(Babel
+add_executable(babel
         src/main.cpp
         include/Exception.hpp
         include/Audio/IAudio.hpp
@@ -29,9 +31,9 @@ add_executable(Babel
         include/Serializer/Opus.hpp
 )
 
-target_include_directories(Babel PRIVATE
+target_include_directories(babel PRIVATE
         ${CONAN_INCLUDE_DIRS}
         include
 )
 
-target_link_libraries(Babel ${CONAN_LIBS})
+target_link_libraries(babel ${CONAN_LIBS})
