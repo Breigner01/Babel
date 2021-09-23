@@ -19,6 +19,10 @@ protected:
     double m_sampleRate;
     bool m_muted = false;
 public:
+
+    PortAudioDevice(const PortAudioDevice &) = delete;
+    PortAudioDevice &operator=(const PortAudioDevice &) = delete;
+
     explicit PortAudioDevice(unsigned long framesPerBuffer = 120, double sampleRate = 48000.0, int channelCount = 1)
         : m_framesPerBuffer(framesPerBuffer), m_sampleRate(sampleRate)
     {

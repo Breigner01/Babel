@@ -10,9 +10,9 @@ template<typename Input, typename Output = Input>
 class PortAudio : public IAudio<Input, Output>
 {
 private:
-    PaError m_error;
-    std::unique_ptr<IAudioDevice<Input>> m_inputDevice;
-    std::unique_ptr<IAudioDevice<Output>> m_outputDevice;
+    PaError m_error{};
+    std::unique_ptr<IAudioDevice<Input>> m_inputDevice{};
+    std::unique_ptr<IAudioDevice<Output>> m_outputDevice{};
 public:
     PortAudio()
     {

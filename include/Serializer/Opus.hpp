@@ -15,6 +15,10 @@ private:
     int m_framesPerBuffer;
     int m_channelCount;
 public:
+
+    Opus(const Opus &) = delete;
+    Opus &operator=(const Opus &) = delete;
+
     explicit Opus(int framesPerBuffer = 120, int sampleRate = 48000, int channelCount = 1)
         : m_framesPerBuffer(framesPerBuffer), m_channelCount(channelCount)
     {
