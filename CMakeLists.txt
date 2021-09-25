@@ -21,12 +21,12 @@ endif ()
 add_executable(babel
         src/main.cpp
         include/Exception.hpp
+        include/TypeChecker.hpp
         include/Audio/IAudio.hpp
         include/Audio/PortAudio.hpp
         include/Audio/PortAudioDevice.hpp
         include/Audio/PortAudioInputDevice.hpp
         include/Audio/PortAudioOutputDevice.hpp
-        include/Audio/PortAudioTypeChecker.hpp
         include/Serializer/IEncoder.hpp
         include/Serializer/Opus.hpp
 )

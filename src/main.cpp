@@ -89,9 +89,10 @@ int main()
     std::string input;
 
     std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
-    std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus>();
+    std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
 
     std::cout << "Record Started" << std::endl;
+
     pa->getInputDevice()->start();
     std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::seconds(5);
 

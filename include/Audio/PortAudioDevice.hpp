@@ -4,7 +4,7 @@
 #include <portaudio.h>
 #include "IAudio.hpp"
 #include "Exception.hpp"
-#include "PortAudioTypeChecker.hpp"
+#include "TypeChecker.hpp"
 
 template<typename T>
 class PortAudioDevice : public IAudioDevice<T>
@@ -26,10 +26,7 @@ public:
     explicit PortAudioDevice(unsigned long framesPerBuffer = 120, double sampleRate = 48000.0, int channelCount = 1)
         : m_framesPerBuffer(framesPerBuffer), m_sampleRate(sampleRate)
     {
-        PortAudioTypeChecker<T, unsigned char, char, short, int, float>();
-
-        m_parameters.channelCount = channelCount;
-        m_parameters.hostApiSpecificStreamInfo = nullptr;
+        babel::TypeChecker<T, unsigned char, char, short, int, float>();
         if constexpr (std::is_same_v<T, unsigned char>)
             m_parameters.sampleFormat = paUInt8;
         else if constexpr (std::is_same_v<T, char>)
@@ -40,6 +37,9 @@ public:
             m_parameters.sampleFormat = paInt32;
         else if constexpr (std::is_same_v<T, float>)
             m_parameters.sampleFormat = paFloat32;
+
+        m_parameters.channelCount = channelCount;
+        m_parameters.hostApiSpecificStreamInfo = nullptr;
     }
     ~PortAudioDevice() override = default;
 

@@ -2,11 +2,13 @@
 
 #include "IEncoder.hpp"
 #include "Exception.hpp"
+#include "TypeChecker.hpp"
 #include <opus/opus.h>
 
 #include <iostream>
 
-class Opus : public IEncoder<short, unsigned char>
+template<typename Raw>
+class Opus : public IEncoder<Raw, unsigned char>
 {
 private:
     OpusEncoder	*m_encoder{};
@@ -22,6 +24,8 @@ public:
     explicit Opus(int framesPerBuffer = 120, int sampleRate = 48000, int channelCount = 1)
         : m_framesPerBuffer(framesPerBuffer), m_channelCount(channelCount)
     {
+        babel::TypeChecker<Raw, short, float>();
+    
         m_encoder = opus_encoder_create(sampleRate, m_channelCount, OPUS_APPLICATION_VOIP, &m_error);
     	if (m_error != OPUS_OK)
 	    	throw babel::exception(opus_strerror(m_error));
@@ -39,15 +43,15 @@ public:
             opus_decoder_destroy(m_decoder);
     }
 
-    std::vector<unsigned char> encodeFrame(const std::vector<short>::const_iterator& frame)
+    std::vector<unsigned char> encodeFrame(const typename std::vector<Raw>::const_iterator& frame)
     {
-        std::vector<unsigned char> output(m_framesPerBuffer * m_channelCount * sizeof(short));
+        std::vector<unsigned char> output(m_framesPerBuffer * m_channelCount * sizeof(Raw));
+        int err = -1;
 
-        int err = opus_encode(m_encoder,
-			&*frame,
-			m_framesPerBuffer,
-			output.data(),
-			output.size());
+        if constexpr (std::is_same_v<Raw, short>)
+            err = opus_encode(m_encoder, &*frame, m_framesPerBuffer, output.data(), output.size());
+        else if constexpr (std::is_same_v<Raw, float>)
+            err = opus_encode_float(m_encoder, &*frame, m_framesPerBuffer, output.data(), output.size());
 
         if (err < 0)
             throw babel::exception(opus_strerror(err));
@@ -55,7 +59,7 @@ public:
         return output;
     }
 
-    std::vector<std::vector<unsigned char>> encode(const std::vector<short> &input) override
+    std::vector<std::vector<unsigned char>> encode(const std::vector<Raw> &input) override
     {
         std::vector<std::vector<unsigned char>> encoded{};
 
@@ -64,20 +68,24 @@ public:
         return encoded;
     }
 
-    std::vector<short> decodeFrame(const std::vector<unsigned char> &frame)
+    std::vector<Raw> decodeFrame(const std::vector<unsigned char> &frame)
     {
-        std::vector<short> output(m_framesPerBuffer * m_channelCount);
-        auto err = opus_decode(m_decoder, frame.data(), frame.size(),
-                            output.data(), m_framesPerBuffer, 0);
+        std::vector<Raw> output(m_framesPerBuffer * m_channelCount);
+        int err = -1;
+
+        if constexpr (std::is_same_v<Raw, short>)
+            err = opus_decode(m_decoder, frame.data(), frame.size(), output.data(), m_framesPerBuffer, 0);
+        else if constexpr (std::is_same_v<Raw, float>)
+            err = opus_decode_float(m_decoder, frame.data(), frame.size(), output.data(), m_framesPerBuffer, 0);
+
         if (err < 0)
             throw babel::exception(opus_strerror(err));
-
         return output;
     }
 
-    std::vector<short> decode(const std::vector<std::vector<unsigned char>> &input) override
+    std::vector<Raw> decode(const std::vector<std::vector<unsigned char>> &input) override
     {
-        std::vector<short> output{};
+        std::vector<Raw> output{};
 
 	    for (const auto &i : input) {
             auto dec = decodeFrame(i);
