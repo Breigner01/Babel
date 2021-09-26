@@ -1,8 +1,8 @@
 #pragma once
 
+#include <portaudio.h>
 #include "IAudio.hpp"
 #include "Exception.hpp"
-#include <portaudio.h>
 #include "PortAudioInputDevice.hpp"
 #include "PortAudioOutputDevice.hpp"
 
@@ -18,7 +18,7 @@ public:
     {
         m_error = Pa_Initialize();
         if (m_error != paNoError)
-            throw babel::exception(Pa_GetErrorText(m_error));
+            throw babel::exception("PortAudio : ", Pa_GetErrorText(m_error));
 
         m_inputDevice = std::make_unique<PortAudioInputDevice<Input>>();
         m_outputDevice = std::make_unique<PortAudioOutputDevice<Output>>();

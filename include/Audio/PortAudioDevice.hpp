@@ -7,6 +7,7 @@
 #include "TypeChecker.hpp"
 
 template<typename T>
+requires TypeChecker<T, unsigned char, char, short, int, float>
 class PortAudioDevice : public IAudioDevice<T>
 {
 protected:
@@ -26,7 +27,6 @@ public:
     explicit PortAudioDevice(unsigned long framesPerBuffer = 120, double sampleRate = 48000.0, int channelCount = 1)
         : m_framesPerBuffer(framesPerBuffer), m_sampleRate(sampleRate)
     {
-        babel::TypeChecker<T, unsigned char, char, short, int, float>();
         if constexpr (std::is_same_v<T, unsigned char>)
             m_parameters.sampleFormat = paUInt8;
         else if constexpr (std::is_same_v<T, char>)
@@ -46,13 +46,13 @@ public:
     void start() override
     {
         if (auto err = Pa_StartStream(m_stream) != paNoError)
-            throw babel::exception(Pa_GetErrorText(err));
+            throw babel::exception("PortAudioDevice : ", Pa_GetErrorText(err));
     }
 
     void stop() override
     {
         if (auto err = Pa_StopStream(m_stream) != paNoError)
-            throw babel::exception(Pa_GetErrorText(err));
+            throw babel::exception("PortAudioDevice : ", Pa_GetErrorText(err));
     }
 
     void mute() noexcept override

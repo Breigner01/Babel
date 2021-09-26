@@ -1,13 +1,12 @@
 #pragma once
 
+#include <opus/opus.h>
 #include "IEncoder.hpp"
 #include "Exception.hpp"
 #include "TypeChecker.hpp"
-#include <opus/opus.h>
-
-#include <iostream>
 
 template<typename Raw>
+requires TypeChecker<Raw, short, float>
 class Opus : public IEncoder<Raw, unsigned char>
 {
 private:
@@ -24,15 +23,13 @@ public:
     explicit Opus(int framesPerBuffer = 120, int sampleRate = 48000, int channelCount = 1)
         : m_framesPerBuffer(framesPerBuffer), m_channelCount(channelCount)
     {
-        babel::TypeChecker<Raw, short, float>();
-    
         m_encoder = opus_encoder_create(sampleRate, m_channelCount, OPUS_APPLICATION_VOIP, &m_error);
     	if (m_error != OPUS_OK)
-	    	throw babel::exception(opus_strerror(m_error));
+	    	throw babel::exception("Opus : ", opus_strerror(m_error));
 
         m_decoder = opus_decoder_create(sampleRate, m_channelCount, &m_error);
         if (m_error != OPUS_OK)
-		    throw babel::exception(opus_strerror(m_error));
+		    throw babel::exception("Opus : ", opus_strerror(m_error));
     }
 
     ~Opus() override
@@ -54,7 +51,7 @@ public:
             err = opus_encode_float(m_encoder, &*frame, m_framesPerBuffer, output.data(), output.size());
 
         if (err < 0)
-            throw babel::exception(opus_strerror(err));
+            throw babel::exception("Opus : ", opus_strerror(err));
         output.resize(err);
         return output;
     }
@@ -79,7 +76,7 @@ public:
             err = opus_decode_float(m_decoder, frame.data(), frame.size(), output.data(), m_framesPerBuffer, 0);
 
         if (err < 0)
-            throw babel::exception(opus_strerror(err));
+            throw babel::exception("Opus : ", opus_strerror(err));
         return output;
     }
 

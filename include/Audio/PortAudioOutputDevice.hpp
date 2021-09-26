@@ -11,7 +11,7 @@ public:
     {
         this->m_parameters.device = Pa_GetDefaultOutputDevice();
         if (auto err = this->m_parameters.device == paNoDevice)
-            throw babel::exception(Pa_GetErrorText(err));
+            throw babel::exception("PortAudioOutputDevice : ", Pa_GetErrorText(err));
         this->m_parameters.suggestedLatency = Pa_GetDeviceInfo(this->m_parameters.device)->defaultLowOutputLatency;
 
         if (auto err = Pa_OpenStream(
@@ -23,7 +23,7 @@ public:
             paClipOff,
             playCallback,
             this) != paNoError)
-            throw babel::exception(Pa_GetErrorText(err));
+            throw babel::exception("PortAudioOutputDevice : ", Pa_GetErrorText(err));
     }
 
     ~PortAudioOutputDevice() override = default;
