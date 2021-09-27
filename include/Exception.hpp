@@ -13,7 +13,7 @@ private:
 public:
     explicit exception(std::string err) : m_err(std::move(err)) {}
     template<typename ...T>
-    exception(T &&...err)
+    exception(T &&...err) : m_err()
     {
         m_err.append(std::forward<T>(err)...);
     }
