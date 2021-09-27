@@ -40,7 +40,7 @@ jobs:
 
             - name: Install Required Dependencies on Ubuntu
               if: ${{ matrix.os == 'ubuntu-latest' }}
-              run: sudo apt install -y libgl-dev ; sudo apt install -y build-essential
+              run: sudo apt install -y libgl-dev ; sudo apt install -y g++-11
 
             - name: Create Build Directory
               run: mkdir build
