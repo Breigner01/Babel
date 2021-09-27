@@ -2,12 +2,14 @@
 
 #include <vector>
 
+/**
+ *  Interface that represents an encoder library
+ */
 template<typename Raw, typename Compressed = Raw>
 class IEncoder
 {
 public:
     virtual ~IEncoder() = default;
-
     /**
      *  Encode an audio frame
      *

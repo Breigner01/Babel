@@ -3,11 +3,13 @@
 #include <vector>
 #include <memory>
 
+/**
+ *  Interface that represents an input or an ouput audio device
+ */
 template<typename T>
 class IAudioDevice {
 public:
     virtual ~IAudioDevice() = default;
-
     /**
      *  Start the audio stream
      */
@@ -50,11 +52,13 @@ public:
     virtual void clearBuffer() noexcept = 0;
 };
 
+/**
+ *  Interface that represents an audio library
+ */
 template<typename Input, typename Output = Input>
 class IAudio {
 public:
     virtual ~IAudio() = default;
-
     /**
      *  @return the input audio device
      */
