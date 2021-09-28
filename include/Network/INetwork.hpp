@@ -17,6 +17,6 @@ public:
     virtual ~INetwork() = default;
     virtual void setTimeout(unsigned short timeout) noexcept = 0;
     virtual void setBufferSize(unsigned short size) noexcept = 0;
-    virtual void send(const std::vector<bool> &packet, const char *str, unsigned short port) = 0;
-    virtual std::vector<bool> receive(const char *str, unsigned short port) = 0;
+    virtual void send(const std::vector<unsigned char> &packet) = 0;
+    virtual std::vector<unsigned char> receive() = 0;
 };
