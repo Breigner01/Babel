@@ -1,1 +1,0 @@
-g++ -Wall -Wextra -Weffc++ -std=c++17 *.cpp -lpthread -lportaudio

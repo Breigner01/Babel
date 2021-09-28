@@ -12,7 +12,7 @@
 babel
 *.so
 cmake-build-*/
-build.sh
+build/
 
 # Documentation Generation Files
 
