@@ -43,8 +43,10 @@ public:
         auto ip = endpoint.address().to_string();
 
         for (auto &i : m_clients) {
-            if (i.endpoint.address().to_string() == ip)
-                i.buffer += std::move(buffer);
+            if (i.endpoint.address().to_string() == ip) {
+                for (auto &b : buffer)
+                    i.buffer.push_back(std::move(b));
+            }
         }
         m_clients.push_back({std::move(endpoint), std::move(buffer)});
     }
