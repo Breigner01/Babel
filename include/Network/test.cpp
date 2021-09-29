@@ -1,19 +1,21 @@
-#include "ASIO.hpp"
 #include <iostream>
+#include "ASIO.hpp"
 
 int main()
 {
-    ASIO soc(INetwork::protocol::udp, "192.168.1.2", 1029);
-
-    std::cout << "pass" << std::endl;
-
-    soc.setBufferSize(1024);
-
-    soc.send({1, 2, 3});
-
-    auto i = soc.receive();
-
-    std::cout << i.size() << std::endl;
-
-    return 0;
+    ASIO<std::string, 1024> client(5001);
+    while (true) {
+        client.receive();
+        auto &clients = client.getClients();
+        if (!clients.empty()) {
+            for (auto &c : clients) {
+                if (!c.buffer.empty()) {
+                    std::cout << c.endpoint.address().to_string() << " - " << c.endpoint.port() << std::endl;
+                    std::cout << c.buffer << std::endl;
+                    c.buffer.clear();
+                    client.send(c, "prout.e.es");
+                }
+            }
+        }
+    }
 }
