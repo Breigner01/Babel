@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace networkProtocol {
     enum Type : uint8_t {
         Error,
