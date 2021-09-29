@@ -1,45 +1,71 @@
 #pragma once
 
-#include <boost/asio.hpp>
+#include <asio.hpp>
+#include <vector>
 #include <string>
-#include <chrono>
-#include <thread>
 #include "INetwork.hpp"
 
-class ASIO : public INetwork
+template<typename T, size_t L>
+class ASIO : public INetwork<T, L>
 {
 private:
-    boost::asio::io_context m_io_context{};
-    boost::asio::ip::udp::socket m_socket;
-    boost::asio::ip::udp::endpoint m_client;
+    asio::io_context m_io_context{};
+    asio::ip::udp::socket m_socket;
 
-    std::string m_ip;
-    unsigned short m_port;
-    std::vector<unsigned char> m_buffer;
-    unsigned short m_sleepTime;
+    std::vector<Network::Client<T>> m_clients{};
+
 public:
-    ASIO(protocol p, std::string ip, unsigned short port)
-        : m_socket(m_io_context), m_client(boost::asio::ip::make_address(ip), port), m_ip(ip), m_port(port)
+    ASIO(unsigned short port)
+        : m_socket(m_io_context, asio::ip::udp::endpoint(asio::ip::udp::v4(), port))
     {
-        m_socket.open(boost::asio::ip::udp::v4());
+        
     }
+
     ~ASIO() = default;
-    void setTimeout(unsigned short timeout) noexcept override
+
+    void send(const Network::Client<T> &cli, const T &packet) override
     {
-        m_sleepTime = timeout;
+        m_socket.send_to(asio::buffer(packet, packet.size()), cli.endpoint);
     }
-    void setBufferSize(unsigned short size) noexcept override
+
+    void receive() override
     {
-        m_buffer.reserve(size);
+        asio::ip::udp::endpoint endpoint;
+        char recv_str[L];
+        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint);
+
+        T buffer;
+        buffer.reserve(len);
+
+        for (size_t i = 0; i < len; i++)
+            buffer.push_back(recv_str[i]);
+
+        auto ip = endpoint.address().to_string();
+
+        for (auto &i : m_clients) {
+            if (i.endpoint.address().to_string() == ip)
+                i.buffer += std::move(buffer);
+        }
+        m_clients.push_back({std::move(endpoint), std::move(buffer)});
     }
-    void send(const std::vector<unsigned char> &packet) override
+
+    void addClient(Network::Client<T> c) override
     {
-        m_socket.send_to(boost::asio::buffer(packet), m_client);
+        m_clients.emplace_back(std::move(c));
     }
-    std::vector<unsigned char> receive() override
+
+    void removeClient(Network::Client<T> c) override
     {
-        std::this_thread::sleep_for(std::chrono::seconds(m_sleepTime));
-        m_socket.receive_from(boost::asio::buffer(m_buffer), m_client);
-        return m_buffer;
+        for (size_t i = 0; i < m_clients.size(); i++) {
+            if (m_clients[i].endpoint.address().to_string() == c.endpoint.address().to_string()) {
+                m_clients.erase(m_clients.begin() + i);  
+                return;
+            }
+        }
+    }
+
+    std::vector<Network::Client<T>> &getClients() noexcept override
+    {
+        return m_clients;
     }
 };
