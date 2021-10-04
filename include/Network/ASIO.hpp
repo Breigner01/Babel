@@ -52,6 +52,7 @@ public:
                 for (auto &b : buffer)
                     i.buffer.back().push_back(std::move(b));
             }
+            return;
         }
         m_clients.push_back({std::move(endpoint), {std::move(buffer)}});
     }
