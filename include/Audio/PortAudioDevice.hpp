@@ -86,8 +86,7 @@ public:
     void pushBuffer(const std::vector<T> &other) override
     {
         std::scoped_lock lock(m_mutex);
-        for (const auto &o : other)
-            m_buffer.push_back(o);
+        m_buffer.insert(m_buffer.end(), other.begin(), other.end());
     }
 
     void clearBuffer() noexcept override
