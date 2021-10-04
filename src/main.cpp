@@ -10,9 +10,9 @@ int main()
 
     std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
-    std::unique_ptr<INetwork<short, 2400>> socket = std::make_unique<ASIO<short, 2400>>(5000);
+    std::unique_ptr<INetwork<short, 4800>> socket = std::make_unique<ASIO<short, 4800>>(5000);
 
-    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.154.16"), 5000), {}});
+    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("127.0.0.1"), 5000), {}});
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -24,25 +24,20 @@ int main()
         // ENVOI
         auto in = pa->getInputDevice()->popBuffer();
 
-        if (in.size() > 2400)
-            in.resize(2400);
+        if (in.size() > 4800)
+            in.resize(4800);
 
-        std::cout << "mic buf size : " << in.size() << std::endl;
         if (!in.empty()) {
-            //auto packet = op->encode(in);
             socket->send(socket->getClients().front(), in);
+            std::cout << "send" << std::endl;
         }
         // RECEPTION
         socket->receive();
-        for (auto &c : socket->getClients())
-            std::cout << c.endpoint.address().to_string() << std::endl;
-        auto &buf = socket->getClients().front().buffer;
+        std::cout << "received" << std::endl;
+        auto buf = std::move(socket->getClients().front().buffer);
         if (!buf.empty()) {
-            for (const auto &i : buf) {
-                for (const auto &j : i)
-                    std::cout << j << std::endl;
+            for (const auto &i : buf)
                 pa->getOutputDevice()->pushBuffer(i);
-            }
         }
     }
 
