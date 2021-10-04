@@ -10,9 +10,9 @@ int main()
 
     std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
-    std::unique_ptr<INetwork<short, 1024>> socket = std::make_unique<ASIO<short, 1024>>(5000);
+    std::unique_ptr<INetwork<short, 2400>> socket = std::make_unique<ASIO<short, 2400>>(5000);
 
-    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.174.229"), 5000), {}});
+    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.169.48"), 5000), {}});
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -24,6 +24,11 @@ int main()
         std::cout << "while" << std::endl;
         // ENVOI
         auto in = pa->getInputDevice()->popBuffer();
+
+        if (in.size() > 2400)
+            in.resize(2400);
+
+        std::cout << in.size() << std::endl;
         if (!in.empty()) {
             //auto packet = op->encode(in);
             socket->send(socket->getClients().front(), in);
@@ -39,7 +44,6 @@ int main()
             for (const auto &i : buf)
                 pa->getOutputDevice()->pushBuffer(i);
         }
-        pa->getInputDevice()->clearBuffer();
     }
 
     std::cout << "Record Stoped" << std::endl;
