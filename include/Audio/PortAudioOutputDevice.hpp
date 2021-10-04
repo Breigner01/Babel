@@ -36,12 +36,10 @@ public:
     {
         T *pData = static_cast<T *>(pOutputBuffer);
         PortAudioOutputDevice *c = static_cast<PortAudioOutputDevice *>(data);
-        std::scoped_lock lock(c->m_mutex);
 	    size_t iOutput = 0;
 
-        if (!pOutputBuffer) {
+        if (!pOutputBuffer)
             return paContinue;
-        }
         else if (c->m_muted) {
             while (iOutput < iFramesPerBuffer) {
 				pData[iOutput] = 0;
@@ -49,6 +47,7 @@ public:
 		    }
         }
         else {
+            std::scoped_lock lock(c->m_mutex);
             while (iOutput < iFramesPerBuffer) {
                 if (c->m_buffer.empty())
                     break;
