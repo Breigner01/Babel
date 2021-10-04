@@ -12,7 +12,7 @@ int main()
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
     std::unique_ptr<INetwork<short, 2400>> socket = std::make_unique<ASIO<short, 2400>>(5000);
 
-    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.169.48"), 5000), {}});
+    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.174.229"), 5000), {}});
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -38,6 +38,9 @@ int main()
         std::cout << "reicive1" << std::endl;
         socket->receive();
         std::cout << "reicive2" << std::endl;
+        std::cout << "clients size : " << socket->getClients().size() << std::endl;
+        for (auto &c : socket->getClients())
+            std::cout << c.endpoint.address().to_string() << std::endl;
         auto &buf = socket->getClients().front().buffer;
         if (!buf.empty()) {
             std::cout << "buffer" << std::endl;
