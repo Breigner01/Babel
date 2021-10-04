@@ -12,7 +12,7 @@ int main()
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
     std::unique_ptr<INetwork<short, 1024>> socket = std::make_unique<ASIO<short, 1024>>(5000);
 
-    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.178.105"), 5002), {}});
+    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.174.229"), 5000), {}});
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -39,6 +39,7 @@ int main()
             for (const auto &i : buf)
                 pa->getOutputDevice()->pushBuffer(i);
         }
+        pa->getInputDevice()->clearBuffer();
     }
 
     std::cout << "Record Stoped" << std::endl;

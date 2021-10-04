@@ -17,13 +17,14 @@ public:
     ASIO(unsigned short port)
         : m_socket(m_io_context, asio::ip::udp::endpoint(asio::ip::udp::v4(), port))
     {
-        
+        m_socket.non_blocking(true);
     }
 
     ~ASIO() = default;
 
     void send(const Network::Client<T> &cli, const std::vector<T> &packet) override
     {
+        std::cout << packet.size() << std::endl;
         m_socket.send_to(asio::buffer(packet, packet.size()), cli.endpoint);
     }
 
@@ -31,7 +32,11 @@ public:
     {
         asio::ip::udp::endpoint endpoint;
         T recv_str[L];
-        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint);
+        asio::error_code error;
+        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint, 0, error);
+
+        if (error == asio::error::would_block)
+            return;
 
         std::vector<T> buffer;
         buffer.reserve(len);
