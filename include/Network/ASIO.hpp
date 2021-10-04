@@ -11,7 +11,6 @@ class ASIO : public INetwork<T, L>
 private:
     asio::io_context m_io_context{};
     asio::ip::udp::socket m_socket;
-
     std::vector<Network::Client<T>> m_clients{};
 
 public:
@@ -44,11 +43,12 @@ public:
 
         for (auto &i : m_clients) {
             if (i.endpoint.address().to_string() == ip) {
+                i.buffer.emplace_back();
                 for (auto &b : buffer)
-                    i.buffer.push_back(std::move(b));
+                    i.buffer.back().push_back(std::move(b));
             }
         }
-        m_clients.push_back({std::move(endpoint), std::move(buffer)});
+        m_clients.push_back({std::move(endpoint), {std::move(buffer)}});
     }
 
     void addClient(Network::Client<T> c) override

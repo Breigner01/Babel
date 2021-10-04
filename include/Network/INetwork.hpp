@@ -8,7 +8,7 @@ namespace Network {
     struct Client
     {
         asio::ip::udp::endpoint endpoint;
-        std::vector<T> buffer;
+        std::vector<std::vector<T>> buffer;
     };
 }
 
