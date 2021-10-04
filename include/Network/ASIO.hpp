@@ -24,7 +24,6 @@ public:
 
     void send(const Network::Client<T> &cli, const std::vector<T> &packet) override
     {
-        std::cout << packet.size() << std::endl;
         m_socket.send_to(asio::buffer(packet, packet.size()), cli.endpoint);
     }
 
@@ -39,9 +38,9 @@ public:
             return;
 
         std::vector<T> buffer;
-        buffer.reserve(len);
+        buffer.reserve(len / 2);
 
-        for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len / 2; i++)
             buffer.push_back(recv_str[i]);
 
         auto ip = endpoint.address().to_string();
