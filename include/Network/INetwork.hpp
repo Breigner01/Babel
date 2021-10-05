@@ -20,7 +20,7 @@ class INetwork
 {
 public:
     virtual ~INetwork() = default;
-    virtual void send(const Network::Client<T> &cli, const std::vector<T> &packet) = 0;
+    virtual void send(const Network::Client<T> &cli, const T *packet, size_t size) = 0;
     virtual void receive() = 0;
     virtual void addClient(Network::Client<T> c) = 0;
     virtual void removeClient(Network::Client<T> c) = 0;

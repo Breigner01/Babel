@@ -22,10 +22,9 @@ public:
 
     ~ASIO() = default;
 
-    void send(const Network::Client<T> &cli, const std::vector<T> &packet) override
+    void send(const Network::Client<T> &cli, const T *packet, size_t size) override
     {
-        for (size_t i = 0; i < packet.size() - 120; i += 120)
-            m_socket.send_to(asio::buffer(packet.data() + i, 120 * 2), cli.endpoint);
+        m_socket.send_to(asio::buffer(packet, size), cli.endpoint);
     }
 
     void receive() override
@@ -39,9 +38,9 @@ public:
             return;
 
         std::vector<T> buffer;
-        buffer.reserve(len / 2);
+        buffer.reserve(len);
 
-        for (size_t i = 0; i < len / 2; i++)
+        for (size_t i = 0; i < len; i++)
             buffer.push_back(recv_str[i]);
 
         auto ip = endpoint.address().to_string();
