@@ -24,7 +24,8 @@ public:
 
     void send(const Network::Client<T> &cli, const std::vector<T> &packet) override
     {
-        m_socket.send_to(asio::buffer(packet), cli.endpoint);
+        for (size_t i = 0; i < packet.size() - 120; i += 120)
+            m_socket.send_to(asio::buffer(packet.data() + i, 120 * 2), cli.endpoint);
     }
 
     void receive() override
