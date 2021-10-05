@@ -11,7 +11,7 @@ int main()
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
     std::unique_ptr<INetwork<unsigned char, 4800>> socket = std::make_unique<ASIO<unsigned char, 4800>>(5000);
 
-    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("127.0.0.1"), 5000), {}});
+    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("172.20.10.2"), 5000), {}});
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -30,7 +30,9 @@ int main()
                 p->id = networkProtocol::Song;
                 p->size = v.size();
                 std::memcpy((unsigned char *)p + sizeof(networkProtocol::HeaderProtocol), v.data(), v.size());
-                socket->send(socket->getClients().front(), reinterpret_cast<const unsigned char *>(p), v.size() + sizeof(networkProtocol::HeaderProtocol));
+                try {
+                    socket->send(socket->getClients().front(), reinterpret_cast<const unsigned char *>(p), v.size() + sizeof(networkProtocol::HeaderProtocol));
+                } catch (...) {}
                 free(p);
             }
         }
