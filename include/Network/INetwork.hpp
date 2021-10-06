@@ -23,9 +23,7 @@ namespace Network {
     };
 
     template<typename T>
-    class Packet {
-    public:
-        Packet(Type typeArg, std::vector<T> dataArg) : type(std::move(typeArg)), data(std::move(dataArg)) {}
+    struct Packet {
         Type type;
         std::vector<T> data;
     };
