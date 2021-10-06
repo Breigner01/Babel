@@ -80,9 +80,8 @@ public:
         std::vector<T> data{};
         auto ret = reinterpret_cast<const Network::Protocol *>(recv_str);
         if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + (ret->size * sizeof(T))) {
-            T *d = &recv_str[0] + sizeof(Network::Protocol);
             for (size_t i = 0; i < ret->size; i++)
-                data.push_back(d[i]);
+                data.push_back(((reinterpret_cast<const T *>(ret) + sizeof(Network::Protocol)))[i]);
         }
         else
             return;
