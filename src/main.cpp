@@ -58,12 +58,12 @@ int main(int ac, char **av)
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
         return 84;
     }
-    std::unique_ptr<INetwork<size_t, 4800>> socket = std::make_unique<ASIO<size_t, 4800>>(5000);
+    std::unique_ptr<INetwork<short, 4800>> socket = std::make_unique<ASIO<short, 4800>>(5000);
 
     socket->addClient(av[1], 5000);
     std::cout << "Client Added" << std::endl;
-    std::vector<size_t> vec{};
-    vec.push_back(1234567891011);
+    std::vector<short> vec{};
+    vec.push_back(12345);
 
     while (true) {
         // ENVOI
@@ -74,6 +74,7 @@ int main(int ac, char **av)
         if (!output.empty()) {
             for (const auto &packet : output) {
                 if (packet.type == Network::Type::IP and packet.id == 987) {
+                    std::cout << "pkt size : " << packet.data.size() << std::endl;
                     for (auto &i : packet.data)
                         std::cout << i;
                     std::cout << std::endl;
