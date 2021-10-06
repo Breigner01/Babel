@@ -25,7 +25,7 @@ int main()
         if (!in.empty()) {
             auto enc = op->encode(in);
             for (auto &v : enc) {
-                struct networkProtocol::HeaderProtocol *p = (networkProtocol::HeaderProtocol *)malloc(sizeof(networkProtocol::HeaderProtocol) + v.size());
+                struct networkProtocol::HeaderProtocol *p = reinterpret_cast<networkProtocol::HeaderProtocol *>(::operator new (sizeof(networkProtocol::HeaderProtocol) + v.size()));
                 p->magicValue = 0x42dead42;
                 p->id = networkProtocol::Song;
                 p->size = v.size();
@@ -33,7 +33,7 @@ int main()
                 try {
                     socket->send(socket->getClients().front(), reinterpret_cast<const unsigned char *>(p), v.size() + sizeof(networkProtocol::HeaderProtocol));
                 } catch (...) {}
-                free(p);
+                delete p;
             }
         }
         // RECEPTION
