@@ -5,13 +5,42 @@
 #include <string>
 #include "INetwork.hpp"
 
+template<typename T>
+class ASIOClient : public IClient<T>
+{
+public:
+    asio::ip::udp::endpoint m_endpoint;
+    std::vector<Network::Packet<T>> m_buffer{};
+
+    ASIOClient(std::string ip, unsigned short port) : m_endpoint(asio::ip::make_address(ip), port)
+    {
+    }
+    ASIOClient(asio::ip::udp::endpoint endpoint, Network::Type typeArg, std::vector<T> dataArg) : m_endpoint(std::move(endpoint))
+    {
+        m_buffer.push_back(Network::Packet<T>(typeArg, std::move(dataArg)));
+    }
+    ~ASIOClient() override = default;
+    std::string getIP() const override
+    {
+        return m_endpoint.address().to_string();
+    }
+    std::vector<Network::Packet<T>> &getPackets() override
+    {
+        return m_buffer;
+    }
+    std::vector<Network::Packet<T>> popPackets() override
+    {
+        return std::move(m_buffer);
+    }
+};
+
 template<typename T, size_t L>
 class ASIO : public INetwork<T, L>
 {
 private:
     asio::io_context m_io_context{};
     asio::ip::udp::socket m_socket;
-    std::vector<Network::Client<T>> m_clients{};
+    std::vector<std::unique_ptr<IClient<T>>> m_clients{};
 
 public:
     ASIO(unsigned short port)
@@ -22,9 +51,17 @@ public:
 
     ~ASIO() = default;
 
-    void send(const Network::Client<T> &cli, const T *packet, size_t size) override
+    void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, const std::vector<T> &buffer) override
     {
-        m_socket.send_to(asio::buffer(packet, size), cli.endpoint);
+        struct Network::Protocol *p = reinterpret_cast<Network::Protocol *>(::operator new (sizeof(Network::Protocol) + buffer.size()));
+        p->magicValue = 0x42dead42;
+        p->type = type;
+        p->size = buffer.size();
+        std::memcpy((T *)p + sizeof(Network::Protocol), buffer.data(), buffer.size());
+        try {
+            m_socket.send_to(asio::buffer(reinterpret_cast<const unsigned char *>(p), sizeof(Network::Protocol) + buffer.size()), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
+        } catch (...) {}
+        delete p;
     }
 
     void receive() override
@@ -37,41 +74,41 @@ public:
         if (error == asio::error::would_block)
             return;
 
-        std::vector<T> buffer;
-        buffer.reserve(len);
-
-        for (size_t i = 0; i < len; i++)
-            buffer.push_back(recv_str[i]);
-
         auto ip = endpoint.address().to_string();
+        std::vector<unsigned char> data{};
+        auto ret = reinterpret_cast<const Network::Protocol *>(recv_str);
+        if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + ret->size) {
+            for (size_t i = 0; i < ret->size; i++)
+                data.push_back(((reinterpret_cast<const unsigned char *>(ret) + sizeof(Network::Protocol)))[i]);
+        }
+        else
+            return;
 
         for (auto &i : m_clients) {
-            if (i.endpoint.address().to_string() == ip) {
-                i.buffer.emplace_back();
-                for (auto &b : buffer)
-                    i.buffer.back().push_back(std::move(b));
+            if (i->getIP() == ip) {
+                i->getPackets().emplace_back(Network::Type(ret->type), std::move(data));
+                return;
             }
-            return;
         }
-        m_clients.push_back({std::move(endpoint), {std::move(buffer)}});
+        m_clients.push_back(std::make_unique<ASIOClient<T>>(std::move(endpoint), Network::Type(ret->type), std::move(data)));
     }
 
-    void addClient(Network::Client<T> c) override
+    void addClient(std::string ip, unsigned short port) override
     {
-        m_clients.emplace_back(std::move(c));
+        m_clients.push_back(std::make_unique<ASIOClient<T>>(std::move(ip), port));
     }
 
-    void removeClient(Network::Client<T> c) override
+    void removeClient(const std::unique_ptr<IClient<T>> &c) override
     {
         for (size_t i = 0; i < m_clients.size(); i++) {
-            if (m_clients[i].endpoint.address().to_string() == c.endpoint.address().to_string()) {
-                m_clients.erase(m_clients.begin() + i);  
+            if (m_clients[i]->getIP() == c->getIP()) {
+                m_clients.erase(m_clients.begin() + i);
                 return;
             }
         }
     }
 
-    std::vector<Network::Client<T>> &getClients() noexcept override
+    std::vector<std::unique_ptr<IClient<T>>> &getClients() noexcept override
     {
         return m_clients;
     }
