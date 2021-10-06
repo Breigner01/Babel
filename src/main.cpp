@@ -4,7 +4,7 @@
 #include "Serializer/Opus.hpp"
 #include "Network/ASIO.hpp"
 
-/*int main(int ac, char **av)
+int main(int ac, char **av)
 {
     if (ac != 2) {
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
@@ -48,11 +48,11 @@
     pa->getOutputDevice()->stop();
 
     return EXIT_SUCCESS;
-}*/
+}
 
 // main test with others types
 
-int main(int ac, char **av)
+/*int main(int ac, char **av)
 {
     if (ac != 2) {
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
@@ -84,4 +84,4 @@ int main(int ac, char **av)
         std::this_thread::yield();
     }
     return EXIT_SUCCESS;
-}
+}*/
