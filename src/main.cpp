@@ -4,7 +4,7 @@
 #include "Serializer/Opus.hpp"
 #include "Network/ASIO.hpp"
 
-int main(int ac, char **av)
+/*int main(int ac, char **av)
 {
     if (ac != 2) {
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
@@ -48,11 +48,11 @@ int main(int ac, char **av)
     pa->getOutputDevice()->stop();
 
     return EXIT_SUCCESS;
-}
+}*/
 
 // main test with others types
 
-/*int main(int ac, char **av)
+int main(int ac, char **av)
 {
     if (ac != 2) {
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
@@ -62,10 +62,12 @@ int main(int ac, char **av)
 
     socket->addClient(av[1], 5000);
     std::cout << "Client Added" << std::endl;
+    std::vector<size_t> vec{};
+    vec.push_back(1234567891011);
 
     while (true) {
         // ENVOI
-        socket->send(socket->getClients().front(), Network::Type::IP, 987, {1234567891011});
+        socket->send(socket->getClients().front(), Network::Type::IP, 987, vec);
         // RECEPTION
         socket->receive();
         auto output = socket->getClients().front()->popPackets();
@@ -81,4 +83,4 @@ int main(int ac, char **av)
         std::this_thread::yield();
     }
     return EXIT_SUCCESS;
-}*/
+}
