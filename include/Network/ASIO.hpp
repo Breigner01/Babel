@@ -30,9 +30,10 @@ public:
     void receive() override
     {
         asio::ip::udp::endpoint endpoint;
-        T recv_str[L];
+        //T recv_str[L];
+        std::vector<T> recv_str;
         asio::error_code error;
-        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint, 0, error);
+        auto len = m_socket.receive_from(asio::buffer(recv_str), endpoint, 0, error);
 
         if (error == asio::error::would_block)
             return;
