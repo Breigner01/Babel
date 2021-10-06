@@ -23,12 +23,22 @@ namespace Network {
     };
 
     template<typename T>
-    struct Client
-    {
-        asio::ip::udp::endpoint endpoint;
-        std::vector<std::vector<T>> buffer;
+    class Packet {
+    public:
+        Packet(Type typeArg, std::vector<T> dataArg) : type(std::move(typeArg)), data(std::move(dataArg)) {}
+        Type type;
+        std::vector<T> data;
     };
 }
+
+template<typename T>
+class IClient {
+public:
+    virtual ~IClient() = default;
+    virtual std::string getIP() const = 0;
+    virtual std::vector<Network::Packet<T>> &getPackets() = 0;
+    virtual std::vector<Network::Packet<T>> popPackets() = 0;
+};
 
 /**
  *  Interface that represents a network library
@@ -38,9 +48,9 @@ class INetwork
 {
 public:
     virtual ~INetwork() = default;
-    virtual void send(const Network::Client<T> &cli, const T *packet, size_t size) = 0;
+    virtual void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, const std::vector<T> &buffer) = 0;
     virtual void receive() = 0;
-    virtual void addClient(Network::Client<T> c) = 0;
-    virtual void removeClient(Network::Client<T> c) = 0;
-    virtual std::vector<Network::Client<T>> &getClients() noexcept = 0;
+    virtual void addClient(std::string ip, unsigned short port) = 0;
+    virtual void removeClient(const std::unique_ptr<IClient<T>> &c) = 0;
+    virtual std::vector<std::unique_ptr<IClient<T>>> &getClients() noexcept = 0;
 };
