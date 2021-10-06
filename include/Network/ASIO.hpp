@@ -61,7 +61,7 @@ public:
         p->size = buffer.size();
         std::memcpy(reinterpret_cast<T *>(p) + sizeof(Network::Protocol), buffer.data(), size);
         try {
-            m_socket.send_to(asio::buffer(reinterpret_cast<const unsigned char *>(p), sizeof(Network::Protocol) + size), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
+            m_socket.send_to(asio::buffer(reinterpret_cast<const T *>(p), sizeof(Network::Protocol) + size), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
         } catch (...) {}
         delete p;
     }
