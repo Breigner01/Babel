@@ -2,8 +2,26 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace Network {
+    enum Type : uint8_t {
+        Song,
+        Text,
+        Call,
+        EndCall,
+        Contacts
+    };
+
+    /**
+     *  Structure that represents a Header network protocol
+     */
+    struct Protocol {
+        uint32_t magicValue;
+        uint8_t type;
+        uint32_t size;
+    };
+
     template<typename T>
     struct Client
     {

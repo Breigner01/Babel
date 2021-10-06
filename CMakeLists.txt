@@ -28,7 +28,6 @@ add_executable(babel
         include/Audio/PortAudioInputDevice.hpp
         include/Audio/PortAudioOutputDevice.hpp
         include/Network/ASIO.hpp
-        include/Network/HeaderProtocol.hpp
         include/Network/INetwork.hpp
         include/Network/QtNetwork.hpp
         include/Serializer/IEncoder.hpp
