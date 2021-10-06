@@ -53,14 +53,15 @@ public:
 
     void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, unsigned int id, const std::vector<T> &buffer) override
     {
-        auto p = reinterpret_cast<Network::Protocol *>(::operator new (sizeof(Network::Protocol) + buffer.size()));
+        size_t size = buffer.size() * sizeof(T);
+        auto p = reinterpret_cast<Network::Protocol *>(::operator new (sizeof(Network::Protocol) + size));
         p->magicValue = 0x42dead42;
         p->type = type;
         p->id = id;
         p->size = buffer.size();
-        std::memcpy(reinterpret_cast<T *>(p) + sizeof(Network::Protocol), buffer.data(), buffer.size());
+        std::memcpy(reinterpret_cast<T *>(p) + sizeof(Network::Protocol), buffer.data(), size);
         try {
-            m_socket.send_to(asio::buffer(reinterpret_cast<const unsigned char *>(p), sizeof(Network::Protocol) + buffer.size()), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
+            m_socket.send_to(asio::buffer(reinterpret_cast<const unsigned char *>(p), sizeof(Network::Protocol) + size), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
         } catch (...) {}
         delete p;
     }
@@ -70,17 +71,17 @@ public:
         asio::ip::udp::endpoint endpoint;
         T recv_str[L];
         asio::error_code error;
-        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint, 0, error);
+        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint, 0, error) / sizeof(T);
 
         if (error == asio::error::would_block)
             return;
 
         auto ip = endpoint.address().to_string();
-        std::vector<unsigned char> data{};
+        std::vector<T> data{};
         auto ret = reinterpret_cast<const Network::Protocol *>(recv_str);
         if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + ret->size) {
             for (size_t i = 0; i < ret->size; i++)
-                data.push_back(((reinterpret_cast<const unsigned char *>(ret) + sizeof(Network::Protocol)))[i]);
+                data.push_back(((reinterpret_cast<const T *>(ret) + sizeof(Network::Protocol)))[i]);
         }
         else
             return;
