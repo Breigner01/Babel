@@ -71,7 +71,7 @@ public:
         asio::ip::udp::endpoint endpoint;
         T recv_str[L];
         asio::error_code error;
-        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint, 0, error) / sizeof(T);
+        auto len = m_socket.receive_from(asio::buffer(recv_str, L), endpoint, 0, error);
 
         if (error == asio::error::would_block)
             return;
@@ -79,7 +79,7 @@ public:
         auto ip = endpoint.address().to_string();
         std::vector<T> data{};
         auto ret = reinterpret_cast<const Network::Protocol *>(recv_str);
-        if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + ret->size) {
+        if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + (ret->size * sizeof(T))) {
             for (size_t i = 0; i < ret->size; i++)
                 data.push_back(((reinterpret_cast<const T *>(ret) + sizeof(Network::Protocol)))[i]);
         }
