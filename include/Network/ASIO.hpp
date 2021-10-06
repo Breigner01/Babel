@@ -15,9 +15,9 @@ public:
     ASIOClient(std::string ip, unsigned short port) : m_endpoint(asio::ip::make_address(ip), port)
     {
     }
-    ASIOClient(asio::ip::udp::endpoint endpoint, Network::Type typeArg, std::vector<T> dataArg) : m_endpoint(std::move(endpoint))
+    ASIOClient(asio::ip::udp::endpoint endpoint, Network::Type typeArg, unsigned int idArg, std::vector<T> dataArg) : m_endpoint(std::move(endpoint))
     {
-        m_buffer.push_back({typeArg, std::move(dataArg)});
+        m_buffer.push_back({typeArg, idArg, std::move(dataArg)});
     }
     ~ASIOClient() override = default;
     std::string getIP() const override
@@ -51,11 +51,12 @@ public:
 
     ~ASIO() = default;
 
-    void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, const std::vector<T> &buffer) override
+    void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, unsigned int id, const std::vector<T> &buffer) override
     {
         auto p = reinterpret_cast<Network::Protocol *>(::operator new (sizeof(Network::Protocol) + buffer.size()));
         p->magicValue = 0x42dead42;
         p->type = type;
+        p->id = id;
         p->size = buffer.size();
         std::memcpy(reinterpret_cast<T *>(p) + sizeof(Network::Protocol), buffer.data(), buffer.size());
         try {
@@ -86,11 +87,11 @@ public:
 
         for (auto &i : m_clients) {
             if (i->getIP() == ip) {
-                i->getPackets().push_back({Network::Type(ret->type), std::move(data)});
+                i->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
                 return;
             }
         }
-        m_clients.push_back(std::make_unique<ASIOClient<T>>(std::move(endpoint), Network::Type(ret->type), std::move(data)));
+        m_clients.push_back(std::make_unique<ASIOClient<T>>(std::move(endpoint), Network::Type(ret->type), ret->id, std::move(data)));
     }
 
     void addClient(std::string ip, unsigned short port) override

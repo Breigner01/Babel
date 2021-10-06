@@ -28,7 +28,7 @@ int main(int ac, char **av)
         if (!input.empty()) {
             auto encoded = op->encode(input);
             for (auto &frame : encoded)
-                socket->send(socket->getClients().front(), Network::Type::Song, frame);
+                socket->send(socket->getClients().front(), Network::Type::Song, 1, frame);
         }
         // RECEPTION
         socket->receive();
