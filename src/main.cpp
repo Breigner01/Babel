@@ -3,7 +3,6 @@
 #include "Audio/PortAudio.hpp"
 #include "Serializer/Opus.hpp"
 #include "Network/ASIO.hpp"
-#include "Network/HeaderProtocol.hpp"
 
 int main()
 {
@@ -11,7 +10,7 @@ int main()
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
     std::unique_ptr<INetwork<unsigned char, 4800>> socket = std::make_unique<ASIO<unsigned char, 4800>>(5000);
 
-    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("172.20.10.2"), 5000), {}});
+    socket->addClient({asio::ip::udp::endpoint(asio::ip::make_address("10.41.169.202"), 5000), {}});
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -25,13 +24,13 @@ int main()
         if (!in.empty()) {
             auto enc = op->encode(in);
             for (auto &v : enc) {
-                struct networkProtocol::HeaderProtocol *p = reinterpret_cast<networkProtocol::HeaderProtocol *>(::operator new (sizeof(networkProtocol::HeaderProtocol) + v.size()));
+                struct Network::Protocol *p = reinterpret_cast<Network::Protocol *>(::operator new (sizeof(Network::Protocol) + v.size()));
                 p->magicValue = 0x42dead42;
-                p->id = networkProtocol::Song;
+                p->type = Network::Type::Song;
                 p->size = v.size();
-                std::memcpy((unsigned char *)p + sizeof(networkProtocol::HeaderProtocol), v.data(), v.size());
+                std::memcpy((unsigned char *)p + sizeof(Network::Protocol), v.data(), v.size());
                 try {
-                    socket->send(socket->getClients().front(), reinterpret_cast<const unsigned char *>(p), v.size() + sizeof(networkProtocol::HeaderProtocol));
+                    socket->send(socket->getClients().front(), reinterpret_cast<const unsigned char *>(p), v.size() + sizeof(Network::Protocol));
                 } catch (...) {}
                 delete p;
             }
@@ -41,11 +40,11 @@ int main()
         auto buf = std::move(socket->getClients().front().buffer);
         if (!buf.empty()) {
             for (const auto &i : buf) {
-                auto ret = reinterpret_cast<const networkProtocol::HeaderProtocol *>(i.data());
-                if (ret->magicValue == 0x42dead42 and ret->id == networkProtocol::Song and i.size() == sizeof(networkProtocol::HeaderProtocol) + ret->size) {
+                auto ret = reinterpret_cast<const Network::Protocol *>(i.data());
+                if (ret->magicValue == 0x42dead42 and ret->type == Network::Type::Song and i.size() == sizeof(Network::Protocol) + ret->size) {
                     std::vector<unsigned char> vec;
                     for (size_t i = 0; i < ret->size; i++) {
-                        auto mongolie = ((reinterpret_cast<const unsigned char *>(ret) + sizeof(networkProtocol::HeaderProtocol)))[i];
+                        auto mongolie = ((reinterpret_cast<const unsigned char *>(ret) + sizeof(Network::Protocol)))[i];
                         vec.push_back(mongolie);
                     }
                     pa->getOutputDevice()->pushBuffer(op->decode(vec));
