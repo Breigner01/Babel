@@ -49,7 +49,7 @@ public:
         m_socket.non_blocking(true);
     }
 
-    ~ASIO() = default;
+    ~ASIO() override = default;
 
     void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, unsigned int id, const std::vector<T> &buffer) override
     {
