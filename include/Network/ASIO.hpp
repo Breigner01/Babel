@@ -76,8 +76,7 @@ public:
         if (error == asio::error::would_block)
             return;
 
-        auto ip = endpoint.address().to_string();
-        std::vector<T> data{};
+        std::vector<T> data(len / sizeof(T));
         auto ret = reinterpret_cast<const Network::Protocol *>(recv_str);
         if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + (ret->size * sizeof(T))) {
             for (size_t i = 0; i < ret->size; i++)
@@ -87,7 +86,7 @@ public:
             return;
 
         for (auto &i : m_clients) {
-            if (i->getIP() == ip) {
+            if (i->getIP() == endpoint.address().to_string()) {
                 i->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
                 return;
             }
