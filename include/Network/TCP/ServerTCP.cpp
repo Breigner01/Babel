@@ -9,7 +9,9 @@ bool session::want_read() const
 
 void session::do_read(std::error_code& err)
 {
-  if (std::size_t len = m_socket.read_some(asio::buffer(m_buffer), err)) {
+  std::size_t len = m_socket.read_some(asio::buffer(m_buffer), err);
+
+  if (len) {
     m_write_buffer = asio::buffer(m_buffer, len);
     m_state = writing;
   }
@@ -22,7 +24,9 @@ bool session::want_write() const
 
 void session::do_write(std::error_code& err)
 {
-  if (std::size_t len = m_socket.write_some(asio::buffer(m_write_buffer), err)) {
+  std::size_t len = m_socket.write_some(asio::buffer(m_write_buffer), err);
+
+  if (len) {
     m_write_buffer = m_write_buffer + len;
     m_state = asio::buffer_size(m_write_buffer) > 0 ? writing : reading;
   }

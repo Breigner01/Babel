@@ -13,7 +13,6 @@ private:
   std::array<char, 128> m_buffer;
   asio::const_buffer m_write_buffer;
 
-
 public:
   session(asio::ip::tcp::socket& socket) : m_socket(socket){}
 
