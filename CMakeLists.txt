@@ -10,6 +10,16 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 set(CONAN_DISABLE_CHECK_COMPILER 1)
 
+if (${CMAKE_BUILD_TYPE} MATCHES "Release")
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT IPO_Supported OUTPUT ErrorMessage)
+
+    if (IPO_Supported)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+        message(STATUS "Interprocedural optimizations enabled")
+    endif ()
+endif ()
+
 conan_basic_setup()
 
 if (UNIX)
@@ -42,4 +52,6 @@ target_include_directories(babel SYSTEM PRIVATE
         ${CONAN_INCLUDE_DIRS}
 )
 
-target_link_libraries(babel ${CONAN_LIBS})
+find_package(Qt5Network REQUIRED)
+
+target_link_libraries(babel ${CONAN_LIBS} Qt5::Network)
