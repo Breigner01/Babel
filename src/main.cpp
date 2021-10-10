@@ -4,15 +4,20 @@
 #include "Serializer/Opus.hpp"
 #include "Network/ASIO.hpp"
 
+#include <QCoreApplication>
+#include "Network/QtNetwork.hpp"
+
 int main(int ac, char **av)
 {
     if (ac != 2) {
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
         return 84;
     }
+    QCoreApplication a(ac, av);
     std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
-    std::unique_ptr<INetwork<unsigned char, 4800>> socket = std::make_unique<ASIO<unsigned char, 4800>>(5000);
+
+    std::unique_ptr<INetwork> socket = std::make_unique<QtNetwork>(5000);
 
     socket->addClient(av[1], 5000);
     std::cout << "Client Added" << std::endl;
@@ -47,41 +52,5 @@ int main(int ac, char **av)
     pa->getInputDevice()->stop();
     pa->getOutputDevice()->stop();
 
-    return EXIT_SUCCESS;
+    return a.exec();
 }
-
-// main test with others types
-
-/*int main(int ac, char **av)
-{
-    if (ac != 2) {
-        std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
-        return 84;
-    }
-    std::unique_ptr<INetwork<short, 4800>> socket = std::make_unique<ASIO<short, 4800>>(5000);
-
-    socket->addClient(av[1], 5000);
-    std::cout << "Client Added" << std::endl;
-    std::vector<short> vec{};
-    vec.push_back(12345);
-
-    while (true) {
-        // ENVOI
-        socket->send(socket->getClients().front(), Network::Type::IP, 987, vec);
-        // RECEPTION
-        socket->receive();
-        auto output = socket->getClients().front()->popPackets();
-        if (!output.empty()) {
-            for (const auto &packet : output) {
-                if (packet.type == Network::Type::IP and packet.id == 987) {
-                    std::cout << "pkt size : " << packet.data.size() << std::endl;
-                    for (auto &i : packet.data)
-                        std::cout << i;
-                    std::cout << std::endl;
-                }
-            }
-        }
-        std::this_thread::yield();
-    }
-    return EXIT_SUCCESS;
-}*/

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -24,34 +25,32 @@ namespace Network {
         uint32_t size;
     };
 
-    template<typename T>
     struct Packet {
         Type type;
         unsigned int id;
-        std::vector<T> data;
+        std::vector<uint8_t> data;
     };
 }
 
-template<typename T>
 class IClient {
 public:
     virtual ~IClient() = default;
     virtual std::string getIP() const = 0;
-    virtual std::vector<Network::Packet<T>> &getPackets() = 0;
-    virtual std::vector<Network::Packet<T>> popPackets() = 0;
+    virtual std::vector<Network::Packet> &getPackets() = 0;
+    virtual std::vector<Network::Packet> popPackets() = 0;
 };
 
 /**
  *  Interface that represents a network library
  */
-template<typename T, size_t L>
+
 class INetwork
 {
 public:
     virtual ~INetwork() = default;
-    virtual void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, unsigned int id, const std::vector<T> &buffer) = 0;
+    virtual void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) = 0;
     virtual void receive() = 0;
     virtual void addClient(std::string ip, unsigned short port) = 0;
-    virtual void removeClient(const std::unique_ptr<IClient<T>> &c) = 0;
-    virtual std::vector<std::unique_ptr<IClient<T>>> &getClients() noexcept = 0;
+    virtual void removeClient(const std::unique_ptr<IClient> &c) = 0;
+    virtual std::vector<std::unique_ptr<IClient>> &getClients() noexcept = 0;
 };
