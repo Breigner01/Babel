@@ -17,7 +17,7 @@ namespace Network {
     /**
      *  Structure that represents a Header network protocol
      */
-    struct Protocol {
+    struct Header {
         uint32_t magicValue;
         uint8_t type;
         uint32_t id;

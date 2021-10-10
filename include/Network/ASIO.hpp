@@ -54,14 +54,14 @@ public:
     void send(const std::unique_ptr<IClient<T>> &client, Network::Type type, unsigned int id, const std::vector<T> &buffer) override
     {
         size_t size = buffer.size() * sizeof(T);
-        auto p = reinterpret_cast<Network::Protocol *>(::operator new (sizeof(Network::Protocol) + size));
+        auto p = reinterpret_cast<Network::Header *>(::operator new (sizeof(Network::Header) + size));
         p->magicValue = 0x42dead42;
         p->type = type;
         p->id = id;
         p->size = buffer.size();
-        std::memcpy(reinterpret_cast<T *>(p) + sizeof(Network::Protocol), buffer.data(), size);
+        std::memcpy(reinterpret_cast<T *>(p) + sizeof(Network::Header), buffer.data(), size);
         try {
-            m_socket.send_to(asio::buffer(reinterpret_cast<const T *>(p), sizeof(Network::Protocol) + size), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
+            m_socket.send_to(asio::buffer(reinterpret_cast<const T *>(p), sizeof(Network::Header) + size), dynamic_cast<ASIOClient<T> *>(client.get())->m_endpoint);
         } catch (...) {}
         delete p;
     }
@@ -77,10 +77,10 @@ public:
             return;
 
         std::vector<T> data(len / sizeof(T));
-        auto ret = reinterpret_cast<const Network::Protocol *>(recv_str);
-        if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Protocol) + (ret->size * sizeof(T))) {
+        auto ret = reinterpret_cast<const Network::Header *>(recv_str);
+        if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Header) + (ret->size * sizeof(T))) {
             for (size_t i = 0; i < ret->size; i++)
-                data.push_back(((reinterpret_cast<const T *>(ret) + sizeof(Network::Protocol)))[i]);
+                data.push_back(((reinterpret_cast<const T *>(ret) + sizeof(Network::Header)))[i]);
         }
         else
             return;
