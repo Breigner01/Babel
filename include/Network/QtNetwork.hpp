@@ -6,7 +6,7 @@
 class QtClient : public IClient
 {
 public:
-    QUdpSocket m_endpoint;
+    QUdpSocket m_endpoint{};
     std::vector<Network::Packet> m_buffer{};
 
     QtClient(std::string ip, unsigned short port)
@@ -33,7 +33,7 @@ class QtNetwork : public QObject, public INetwork
 {
     Q_OBJECT
 private:
-    QUdpSocket m_socket;
+    QUdpSocket m_socket{};
     std::vector<std::unique_ptr<IClient>> m_clients{};
 public:
     QtNetwork(unsigned short port) : m_socket(this)
@@ -97,7 +97,7 @@ public slots:
             m_socket.readDatagram(datagram.data(),datagram.size(),&sender,&port);
 
             auto ret = reinterpret_cast<const Network::Header *>(datagram.data());
-            if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Header) + (ret->size * sizeof(uint8_t))) {
+            if (ret->magicValue == 0x42dead42 and len == static_cast<qint64>(sizeof(Network::Header) + (ret->size * sizeof(uint8_t)))) {
                 for (size_t i = 0; i < ret->size; i++)
                     data.push_back(((reinterpret_cast<const uint8_t *>(ret) + sizeof(Network::Header)))[i]);
                 }
