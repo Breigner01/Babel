@@ -35,8 +35,11 @@ add_executable(babel
 )
 
 target_include_directories(babel PRIVATE
-        ${CONAN_INCLUDE_DIRS}
         include
+)
+
+target_include_directories(babel SYSTEM PRIVATE
+        ${CONAN_INCLUDE_DIRS}
 )
 
 target_link_libraries(babel ${CONAN_LIBS})
