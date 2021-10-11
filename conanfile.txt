@@ -12,5 +12,4 @@ lib, *.so* -> lib
 
 [generators]
 cmake
-#cmake_paths
 cmake_find_package
