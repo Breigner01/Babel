@@ -13,6 +13,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/build")
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
+set(CONAN_DISABLE_CHECK_COMPILER 1)
+
 conan_basic_setup(TARGETS)
 
 find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
