@@ -6,20 +6,15 @@
 
 #include <QCoreApplication>
 #include "Network/QtNetwork.hpp"
+#include <QThread>
 
-int main(int ac, char **av)
+void callback(std::string ip)
 {
-    if (ac != 2) {
-        std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
-        return 84;
-    }
-    QCoreApplication a(ac, av);
     std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
+    std::unique_ptr<INetwork> socket = std::make_unique<QtNetwork>(5002);
 
-    std::unique_ptr<INetwork> socket = std::make_unique<QtNetwork>(5000);
-
-    socket->addClient(av[1], 5000);
+    socket->addClient(ip, 5002);
     std::cout << "Client Added" << std::endl;
 
     pa->getInputDevice()->start();
@@ -40,8 +35,9 @@ int main(int ac, char **av)
         auto output = socket->getClients().front()->popPackets();
         if (!output.empty()) {
             for (const auto &packet : output) {
-                if (packet.type == Network::Type::Song)
+                if (packet.type == Network::Type::Song) {
                     pa->getOutputDevice()->pushBuffer(op->decode(packet.data));
+                }
             }
         }
         std::this_thread::yield();
@@ -51,6 +47,15 @@ int main(int ac, char **av)
 
     pa->getInputDevice()->stop();
     pa->getOutputDevice()->stop();
+}
 
+int main(int ac, char **av)
+{
+    if (ac != 2) {
+        std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
+        return 84;
+    }
+    QCoreApplication a(ac, av);
+    std::thread th(callback, av[1]);
     return a.exec();
 }

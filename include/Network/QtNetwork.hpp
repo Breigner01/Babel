@@ -3,7 +3,6 @@
 #include <QtNetwork>
 #include "INetwork.hpp"
 
-
 class QtClient : public QObject, public IClient
 {
     Q_OBJECT
@@ -15,7 +14,7 @@ public:
     ~QtClient() override = default;
     std::string getIP() const override
     {
-        return m_endpoint.localAddress().toString().toStdString();
+        return m_endpoint.peerAddress().toString().toStdString();
     }
     std::vector<Network::Packet> &getPackets() override
     {

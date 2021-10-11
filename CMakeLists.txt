@@ -31,7 +31,7 @@ add_executable(babel
 )
 
 target_include_directories(babel PRIVATE
-        ./include
+        include
 )
 
 target_link_libraries(babel Qt5::Widgets Qt5::Network)

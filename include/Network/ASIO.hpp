@@ -74,7 +74,7 @@ public:
         if (error == asio::error::would_block)
             return;
 
-        std::vector<uint8_t> data(len);
+        std::vector<uint8_t> data{};
         auto ret = reinterpret_cast<const Network::Header *>(recv_str);
         if (ret->magicValue == 0x42dead42 and len == sizeof(Network::Header) + (ret->size)) {
             for (size_t i = 0; i < ret->size; i++)
