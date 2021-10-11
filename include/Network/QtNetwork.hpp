@@ -91,13 +91,13 @@ public slots:
 
         while (m_socket.hasPendingDatagrams()) {
             auto len = m_socket.pendingDatagramSize();
-            std::vector<uint8_t> data(len / sizeof(uint8_t));
+            std::vector<uint8_t> data(len);
             QByteArray datagram;
             datagram.resize(len);
             m_socket.readDatagram(datagram.data(),datagram.size(),&sender,&port);
 
             auto ret = reinterpret_cast<const Network::Header *>(datagram.data());
-            if (ret->magicValue == 0x42dead42 and len == static_cast<qint64>(sizeof(Network::Header) + (ret->size * sizeof(uint8_t)))) {
+            if (ret->magicValue == 0x42dead42 and len == static_cast<qint64>(sizeof(Network::Header) + (ret->size))) {
                 for (size_t i = 0; i < ret->size; i++)
                     data.push_back(((reinterpret_cast<const uint8_t *>(ret) + sizeof(Network::Header)))[i]);
                 }
