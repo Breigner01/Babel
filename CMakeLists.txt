@@ -8,8 +8,8 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/build")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
@@ -25,15 +25,25 @@ else ()
     add_compile_options(/W4)
 endif ()
 
-add_executable(babel
+add_executable(babel_client
         src/Client/main.cpp
         include/Network/QtNetwork.cpp
 )
 
-target_include_directories(babel PRIVATE
+target_include_directories(babel_client PRIVATE
         include
 )
 
-target_link_libraries(babel Qt5::Widgets Qt5::Network)
+target_link_libraries(babel_client Qt5::Widgets Qt5::Network)
 
-conan_target_link_libraries(babel CONAN_PKG::portaudio)
+conan_target_link_libraries(babel_client CONAN_PKG::portaudio)
+
+add_executable(babel_server
+        src/Server/main.cpp
+)
+
+target_include_directories(babel_server PRIVATE
+        include
+)
+
+conan_target_link_libraries(babel_server CONAN_PKG::portaudio)
