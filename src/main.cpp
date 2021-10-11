@@ -3,10 +3,11 @@
 #include "Audio/PortAudio.hpp"
 #include "Serializer/Opus.hpp"
 #include "Network/ASIO.hpp"
-
-#include <QCoreApplication>
 #include "Network/QtNetwork.hpp"
-#include <QThread>
+
+#include <QApplication>
+#include <QInputDialog>
+#include <thread>
 
 void callback(std::string ip)
 {
@@ -55,7 +56,9 @@ int main(int ac, char **av)
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
         return 84;
     }
-    QCoreApplication a(ac, av);
+    QApplication a(ac, av);
+    bool ok;
+    QInputDialog::getText(nullptr, "sudox", "passw", QLineEdit::Password, "", &ok);
     std::thread th(callback, av[1]);
     return a.exec();
 }
