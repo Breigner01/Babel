@@ -26,7 +26,7 @@ else ()
 endif ()
 
 add_executable(babel
-        src/main.cpp
+        src/Client/main.cpp
         include/Network/QtNetwork.cpp
 )
 
