@@ -12,7 +12,8 @@ namespace Network {
         Text,
         Call,
         EndCall,
-        Contacts
+        Contacts,
+        Connection,
     };
 
     /**

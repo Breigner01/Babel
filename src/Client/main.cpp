@@ -17,6 +17,20 @@ void callback(std::string ip)
 
     socket->addClient(ip, 5002);
     std::cout << "Client Added" << std::endl;
+    socket->send(socket->getClients().front(), Network::Type::Connection, 0, {});
+
+    while (true) {
+        socket->receive();
+        auto output = socket->getClients().front()->popPackets();
+        if (!output.empty()) {
+            for (const auto &packet : output) {
+                if (packet.type == Network::Type::Connection and packet.id == 1)
+                    break;
+            }
+        }
+    }
+
+    std::cout << "Connection OK" << std::endl;
 
     pa->getInputDevice()->start();
     pa->getOutputDevice()->start();
