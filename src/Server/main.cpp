@@ -15,6 +15,7 @@ void server_loop()
             if (!output.empty()) {
                 for (const auto &packet : output) {
                     if (packet.type == Network::Type::Connection and packet.id == 0) {
+                        std::cout << "[NEW CLIENT] -> " << c->getIP() << std::endl;
                         dynamic_cast<ASIOClient *>(c.get())->setEndpoint();
                         auto username = tools::bufferToString(packet.data);
                         if (climap.find(username) == climap.end()) {
