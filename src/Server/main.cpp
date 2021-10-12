@@ -1,9 +1,12 @@
 #include <iostream>
 #include "Network/ASIO.hpp"
+#include <map>
+#include "Tools.hpp"
 
 void server_loop()
 {
     std::unique_ptr<INetwork> socket = std::make_unique<ASIO>(5002);
+    std::map<std::string, std::string> climap{};
 
     while (true) {
         socket->receive();
@@ -12,7 +15,8 @@ void server_loop()
             if (!output.empty()) {
                 for (const auto &packet : output) {
                     if (packet.type == Network::Type::Connection and packet.id == 0) {
-                        socket->send(c, Network::Type::Connection, 1, {});
+                        auto username = tools::bufferToString(packet.data);
+                        socket->send(c, Network::Type::Connection, 1, {'o', 'k'});
                     }
                 }
             }
