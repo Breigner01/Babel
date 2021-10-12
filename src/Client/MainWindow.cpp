@@ -4,6 +4,20 @@
 #include <QGuiApplication>
 #include <QDir>
 #include <memory>
+#include <chrono>
+#include <iostream>
+
+void reloader(MainWindow *app)
+{
+    using namespace std::chrono_literals;
+    while (true) {
+        std::this_thread::sleep_for(5s);
+        if (!app->m_socket->getClients().empty()) {
+            try {app->loadContacts();}
+            catch (...) {}
+        }
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_parameters("Parameters"), m_ok("OK")
@@ -15,6 +29,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&dynamic_cast<QtNetwork *>(m_socket.get())->m_socket, &QUdpSocket::readyRead, this, &MainWindow::receiveHandler);
 
     parameters();
+
+    std::thread r(reloader, this);
+    r.detach();
 
     setWindowTitle("Babel");
     setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + QDir::separator() + "icone.png"));

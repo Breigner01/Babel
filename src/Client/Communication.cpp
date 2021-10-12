@@ -35,12 +35,15 @@ void MainWindow::receiveHandler()
     auto output = m_socket->getClients().front()->popPackets();
     if (!output.empty()) {
         for (const auto &packet : output) {
-            if (packet.type == Network::Type::ConnectionOK and packet.id == 1) {
-                loadContacts();
+            if (packet.type == Network::Type::Connection and packet.id == 1) {
                 m_addContactWindow.hide();
                 show();
             }
-            else if (packet.type == Network::Type::ConnectionKO and packet.id == 1) {
+            else if (packet.type == Network::Type::UsernameOK and packet.id == 1) {
+                m_addContactWindow.hide();
+                show();
+            }
+            else if (packet.type == Network::Type::UsernameKO and packet.id == 1) {
                 return (void)QMessageBox::critical(nullptr, "Error", "Username already taken :\n" + m_username.text());
             }
             else if (packet.type == Network::Type::Contacts and packet.id == 1) {
@@ -86,10 +89,11 @@ void MainWindow::loadContacts()
 
 void MainWindow::connectToServer()
 {
+    hide();
     m_socket->getClients().clear();
     try {
         m_socket->addClient(m_servIP.text().toStdString(), 5002);
-        m_socket->send(m_socket->getClients().front(), Network::Type::ConnectionOK, 0, tools::stringToBuffer(m_username.text().toStdString()));
+        m_socket->send(m_socket->getClients().front(), Network::Type::Connection, 0, tools::stringToBuffer(m_username.text().toStdString()));
     }
     catch (...) {
         return (void)QMessageBox::critical(nullptr, "Error", "Cannot connect to server :\n" + m_servIP.text());

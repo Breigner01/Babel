@@ -14,15 +14,30 @@ void server_loop()
             auto output = c->popPackets();
             if (!output.empty()) {
                 for (const auto &packet : output) {
-                    if (packet.type == Network::Type::ConnectionOK and packet.id == 0) {
+                    if (packet.type == Network::Type::Connection and packet.id == 0) {
                         dynamic_cast<ASIOClient *>(c.get())->setEndpoint();
                         auto username = tools::bufferToString(packet.data);
                         if (climap.find(username) == climap.end()) {
                             climap[username] = c->getIP();
-                            socket->send(c, Network::Type::ConnectionOK, 1, {});
+                            socket->send(c, Network::Type::Connection, 1, {});
                         }
                         else {
-                            socket->send(c, Network::Type::ConnectionKO, 1, {});
+                            socket->send(c, Network::Type::UsernameKO, 1, {});
+                        }
+                    }
+                    if (packet.type == Network::Type::UsernameOK and packet.id == 0) {
+                        auto username = tools::bufferToString(packet.data);
+                        if (climap.find(username) == climap.end()) {
+                            for (auto &cli : climap) {
+                                if (cli.second == c->getIP()) {
+                                    climap.erase(cli.first);
+                                    climap[username] = c->getIP();
+                                }
+                            }
+                            socket->send(c, Network::Type::UsernameOK, 1, {});
+                        }
+                        else {
+                            socket->send(c, Network::Type::UsernameKO, 1, {});
                         }
                     }
                     else if (packet.type == Network::Type::Contacts and packet.id == 0) {

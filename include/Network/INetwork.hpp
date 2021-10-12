@@ -13,8 +13,9 @@ namespace Network {
         Call,
         EndCall,
         Contacts,
-        ConnectionOK,
-        ConnectionKO,
+        Connection,
+        UsernameOK,
+        UsernameKO,
         PingAlive,
     };
 

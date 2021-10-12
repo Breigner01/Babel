@@ -19,7 +19,7 @@ void callback(std::string ip)
 
     socket->addClient(ip, 5002);
     std::cout << "Client Added" << std::endl;
-    socket->send(socket->getClients().front(), Network::Type::ConnectionOK, 0, tools::stringToBuffer("tocola"));
+    socket->send(socket->getClients().front(), Network::Type::Connection, 0, tools::stringToBuffer("tocola"));
     bool waiting = true;
 
     while (waiting) {
@@ -27,9 +27,9 @@ void callback(std::string ip)
         auto output = socket->getClients().front()->popPackets();
         if (!output.empty()) {
             for (const auto &packet : output) {
-                if (packet.type == Network::Type::ConnectionOK and packet.id == 1)
+                if (packet.type == Network::Type::Connection and packet.id == 1)
                     waiting = false;
-                else if (packet.type == Network::Type::ConnectionKO and packet.id == 1)
+                else if (packet.type == Network::Type::UsernameKO and packet.id == 1)
                     std::cout << "pseudo already taken" << std::endl;
             }
         }
