@@ -9,13 +9,13 @@ namespace Network {
     enum Type : uint8_t {
         IP,
         Song,
-        Text,
         RequestCall,
         Call,
         EndCall,
         Contacts,
         ConnectionOK,
         ConnectionKO,
+        PingAlive,
     };
 
     enum Method : bool {
