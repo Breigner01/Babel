@@ -23,6 +23,10 @@ public:
     {
         return m_endpoint.address().to_string();
     }
+    void setEndpoint()
+    {
+        m_endpoint = asio::ip::udp::endpoint(asio::ip::make_address(getIP()), 5002);
+    }
     std::vector<Network::Packet> &getPackets() override
     {
         return m_buffer;
