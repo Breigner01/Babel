@@ -8,6 +8,8 @@ asio/1.19.2
 portaudio:shared=False
 opus:shared=False
 qt:shared=True
+libpng:shared=True
+freetype:shared=True
 
 [imports]
 lib, *.so* -> lib
