@@ -8,9 +8,11 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_parameters("Parameters"), m_ok("OK")
 {
-    m_socket = std::make_unique<ASIO>(5002);
+    m_socket = std::make_unique<QtNetwork>(5002);
     m_audio = std::make_unique<PortAudio<short>>();
-    m_encoder = std::make_unique<Opus<short>>(); 
+    m_encoder = std::make_unique<Opus<short>>();
+
+    connect(&dynamic_cast<QtNetwork *>(m_socket.get())->m_socket, &QUdpSocket::readyRead, this, &MainWindow::receiveHandler);
 
     parameters();
 

@@ -26,6 +26,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() = default;
     void loadContacts();
+    static void callProcess(MainWindow *app, std::string ip);
 
     // Frameworks
 
@@ -51,6 +52,8 @@ public:
 
     // Call Window
 
+    bool m_isCalling = false;
+    std::unique_ptr<std::thread> m_callPipe{};
     std::unique_ptr<QWidget> m_callWindow{};
 
     // Contact List
@@ -66,6 +69,7 @@ public:
     QPushButton m_ok;
 
 private slots:
+    void receiveHandler();
     void startCall();
     void infoContact();
     void parameters();

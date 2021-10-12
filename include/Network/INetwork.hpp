@@ -10,6 +10,7 @@ namespace Network {
         IP,
         Song,
         Text,
+        RequestCall,
         Call,
         EndCall,
         Contacts,

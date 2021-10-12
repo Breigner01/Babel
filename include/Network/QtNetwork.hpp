@@ -29,10 +29,10 @@ public:
 class QtNetwork : public QObject, public INetwork
 {
     Q_OBJECT
-private:
+public:
     QUdpSocket m_socket{};
     std::vector<std::unique_ptr<IClient>> m_clients{};
-public:
+
     QtNetwork(unsigned short port);
 
     ~QtNetwork() override = default;
@@ -45,6 +45,5 @@ public:
 
     std::vector<std::unique_ptr<IClient>> &getClients() noexcept override;
 
-public slots:
     void receive() override;
 };

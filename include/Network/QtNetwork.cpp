@@ -11,7 +11,6 @@ QtNetwork::QtNetwork(unsigned short port) : m_socket(this)
 {
     if (!m_socket.bind(QHostAddress::AnyIPv4, port))
         throw std::runtime_error("socket bind failed");
-    connect(&m_socket, &QUdpSocket::readyRead, this, &QtNetwork::receive, Qt::QueuedConnection);
 }
 
 void QtNetwork::send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer)
