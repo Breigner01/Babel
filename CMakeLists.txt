@@ -25,27 +25,5 @@ else ()
     add_compile_options(/W4)
 endif ()
 
-add_executable(babel_client
-        src/Client/main.cpp
-        src/Client/Communication.cpp
-        src/Client/MainWindow.cpp
-        include/Network/QtNetwork.cpp
-)
-
-target_include_directories(babel_client PRIVATE
-        include
-)
-
-target_link_libraries(babel_client Qt5::Widgets Qt5::Network)
-
-conan_target_link_libraries(babel_client CONAN_PKG::portaudio)
-
-add_executable(babel_server
-        src/Server/main.cpp
-)
-
-target_include_directories(babel_server PRIVATE
-        include
-)
-
-conan_target_link_libraries(babel_server CONAN_PKG::portaudio)
+include(src/client.cmake)
+include(src/server.cmake)
