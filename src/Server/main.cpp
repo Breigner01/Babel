@@ -1,6 +1,6 @@
 #include <iostream>
-#include "Network/ASIO.hpp"
 #include <map>
+#include "Network/ASIO.hpp"
 #include "Tools.hpp"
 
 void server_loop()
@@ -14,9 +14,24 @@ void server_loop()
             auto output = c->popPackets();
             if (!output.empty()) {
                 for (const auto &packet : output) {
-                    if (packet.type == Network::Type::Connection and packet.id == 0) {
+                    if (packet.type == Network::Type::ConnectionOK and packet.id == 0) {
                         auto username = tools::bufferToString(packet.data);
-                        socket->send(c, Network::Type::Connection, 1, {'o', 'k'});
+                        if (auto usr = climap.find(username) != climap.end()) {
+                            climap[username] = c->getIP();
+                            socket->send(c, Network::Type::ConnectionOK, 1, {});
+                        }
+                        else {
+                            socket->send(c, Network::Type::ConnectionKO, 1, {});
+                        }
+                    }
+                    if (packet.type == Network::Type::Contacts and packet.id == 0) {
+                        std::string buf{};
+                        for (auto &m : map) {
+                            if (m.second != c->getIP())
+                                buf += m.first;
+                                buf += ';'
+                        }
+                        socket->send(c, Network::Type::Contacts, 1, tools::stringToBuffer(buf));
                     }
                 }
             }

@@ -13,7 +13,13 @@ namespace Network {
         Call,
         EndCall,
         Contacts,
-        Connection,
+        ConnectionOK,
+        ConnectionKO,
+    };
+
+    enum Method : bool {
+        Get,
+        Post,
     };
 
     /**

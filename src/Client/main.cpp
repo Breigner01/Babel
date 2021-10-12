@@ -14,24 +14,42 @@ void callback(std::string ip)
 {
     std::unique_ptr<IAudio<short>> pa = std::make_unique<PortAudio<short>>();
     std::unique_ptr<IEncoder<short, unsigned char>> op = std::make_unique<Opus<short>>();
-    std::unique_ptr<INetwork> socket = std::make_unique<QtNetwork>(5002);
+    std::unique_ptr<INetwork> socket = std::make_unique<ASIO>(5002);
 
     socket->addClient(ip, 5002);
     std::cout << "Client Added" << std::endl;
-    socket->send(socket->getClients().front(), Network::Type::Connection, 0, tools::stringToBuffer("10.41.170.48;tocola"));
+    socket->send(socket->getClients().front(), Network::Type::ConnectionOK, 0, tools::stringToBuffer("tocola"));
+    bool waiting = true;
 
-    while (true) {
+    while (waiting) {
         socket->receive();
         auto output = socket->getClients().front()->popPackets();
         if (!output.empty()) {
             for (const auto &packet : output) {
-                if (packet.type == Network::Type::Connection and packet.id == 1)
-                    break;
+                if (packet.type == Network::Type::ConnectionOK and packet.id == 1)
+                    waiting = false;
+                else if (packet.type == Network::Type::ConnectionKO and packet.id == 1)
+                    std::cout << "pseudo already taken" << std::endl;
             }
         }
     }
 
     std::cout << "Connection OK" << std::endl;
+
+    socket->send(socket->getClients().front(), Network::Type::Contacts, 0, {});
+    bool waiting_contacts = true;
+
+    while (waiting_contacts) {
+        socket->receive();
+        auto output = socket->getClients().front()->popPackets();
+        if (!output.empty()) {
+            for (const auto &packet : output) {
+                if (packet.type == Network::Type::Contacts and packet.id == 1) {
+                    waiting_contacts = false;
+                }
+            }
+        }
+    }
 
     pa->getInputDevice()->start();
     pa->getOutputDevice()->start();
