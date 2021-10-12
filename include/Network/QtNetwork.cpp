@@ -54,7 +54,7 @@ std::vector<std::unique_ptr<IClient>> &QtNetwork::getClients() noexcept
 void QtNetwork::receive()
 {
     QHostAddress sender;
-    u_int16_t port;
+    uint16_t port;
 
     while (m_socket.hasPendingDatagrams()) {
         auto len = m_socket.pendingDatagramSize();
