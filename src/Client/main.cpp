@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <thread>
+#include "Tools.hpp"
 
 void callback(std::string ip)
 {
@@ -17,7 +18,7 @@ void callback(std::string ip)
 
     socket->addClient(ip, 5002);
     std::cout << "Client Added" << std::endl;
-    socket->send(socket->getClients().front(), Network::Type::Connection, 0, {});
+    socket->send(socket->getClients().front(), Network::Type::Connection, 0, tools::stringToBuffer("10.41.170.48;tocola"));
 
     while (true) {
         socket->receive();
