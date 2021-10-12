@@ -26,10 +26,10 @@ void server_loop()
                     }
                     if (packet.type == Network::Type::Contacts and packet.id == 0) {
                         std::string buf{};
-                        for (auto &m : map) {
+                        for (auto &m : climap) {
                             if (m.second != c->getIP())
                                 buf += m.first;
-                                buf += ';'
+                                buf += ';';
                         }
                         socket->send(c, Network::Type::Contacts, 1, tools::stringToBuffer(buf));
                     }

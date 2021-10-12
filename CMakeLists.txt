@@ -27,6 +27,8 @@ endif ()
 
 add_executable(babel_client
         src/Client/main.cpp
+        src/Client/Communication.cpp
+        src/Client/MainWindow.cpp
         include/Network/QtNetwork.cpp
 )
 

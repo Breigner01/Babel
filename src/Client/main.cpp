@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+
 #include "Audio/PortAudio.hpp"
 #include "Serializer/Opus.hpp"
 #include "Network/ASIO.hpp"
@@ -83,7 +84,7 @@ void callback(std::string ip)
     pa->getOutputDevice()->stop();
 }
 
-int main(int ac, char **av)
+int maines(int ac, char **av)
 {
     if (ac != 2) {
         std::cout << "Usage : " << av[0] << " " << "ip_adress" << std::endl;
@@ -93,5 +94,15 @@ int main(int ac, char **av)
     bool ok;
     QInputDialog::getText(nullptr, "sudox", "passw", QLineEdit::Password, "", &ok);
     std::thread th(callback, av[1]);
+    return a.exec();
+}
+
+#include "MainWindow.hpp"
+#include <QApplication>
+
+int main(int ac, char **av)
+{
+    QApplication a(ac, av);
+    MainWindow w;
     return a.exec();
 }
