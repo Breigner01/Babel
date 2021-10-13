@@ -32,6 +32,7 @@
 
 void MainWindow::receiveHandler()
 {
+    m_socket->receive();
     auto output = m_socket->getClients().front()->popPackets();
     if (!output.empty()) {
         for (const auto &packet : output) {
