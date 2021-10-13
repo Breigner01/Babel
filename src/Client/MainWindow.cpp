@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&m_call, SIGNAL(clicked()), this, SLOT(startCall()));
     connect(&m_infoContact, SIGNAL(clicked()), this, SLOT(infoContact()));
     connect(&m_changeUsername, SIGNAL(clicked()), this, SLOT(changeUsername()));
-    connect(&m_changeServer, SIGNAL(clicked()), this, SLOT(parameters()));
+    connect(&m_changeServer, SIGNAL(clicked()), this, SLOT(joinServer()));
 }
 
 MainWindow::~MainWindow()
