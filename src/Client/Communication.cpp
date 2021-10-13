@@ -74,6 +74,9 @@ void MainWindow::receiveHandler()
                     m_callPipe->join();
                 }
                 m_isCalling = true;
+                m_callWindow = std::make_unique<QWidget>();
+                m_callWindow->setWindowTitle("Call");
+                m_callWindow->show();
                 m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
             }
             else if (packet.type == Network::Type::EndCall and packet.id == 1) {
@@ -135,9 +138,6 @@ void MainWindow::infoContact()
 
 void MainWindow::callProcess(MainWindow *app, std::string ip)
 {
-    app->m_callWindow = std::make_unique<QWidget>();
-    app->m_callWindow->setWindowTitle("Call");
-    app->m_callWindow->show();
     app->m_socket->addClient(std::move(ip), 5002);
     app->m_audio->getInputDevice()->start();
     app->m_audio->getOutputDevice()->start();
