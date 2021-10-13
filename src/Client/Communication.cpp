@@ -62,6 +62,9 @@ void MainWindow::receiveHandler()
                         m_callPipe->join();
                     }
                     m_isCalling = true;
+                    m_callWindow = std::make_unique<QWidget>();
+                    m_callWindow->setWindowTitle("Call");
+                    m_callWindow->show();
                     m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
                 }
                 else {
@@ -146,7 +149,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
     app->m_audio->getOutputDevice()->start();
 
     while (app->m_isCalling) {
-        // ENVOI
+        std::cout << "running" << std::endl;
         auto input = app->m_audio->getInputDevice()->popBuffer();
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
