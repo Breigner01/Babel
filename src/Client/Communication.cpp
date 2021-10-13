@@ -134,9 +134,9 @@ void MainWindow::infoContact()
 void MainWindow::callProcess(MainWindow *app, std::string ip)
 {
     if (app->m_socket->getClients().size() >= 2)
-        app->m_socket->getClients().erase (app->m_socket->getClients().begin() + 1, app->m_socket->getClients().end());
+        app->m_socket->getClients().erase(app->m_socket->getClients().begin() + 1, app->m_socket->getClients().end());
 
-    app->m_socket->addClient(std::move(ip), 5002);
+    app->m_socket->addClientAt(1, std::move(ip), 5002);
     app->m_audio->getInputDevice()->start();
     app->m_audio->getOutputDevice()->start();
 
