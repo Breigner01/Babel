@@ -60,6 +60,7 @@ public:
     virtual void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) = 0;
     virtual void receive() = 0;
     virtual void addClient(std::string ip, unsigned short port) = 0;
+    virtual void addClientAt(size_t pos, std::string ip, unsigned short port) = 0;
     virtual void removeClient(const std::unique_ptr<IClient> &c) = 0;
     virtual std::vector<std::unique_ptr<IClient>> &getClients() noexcept = 0;
 };

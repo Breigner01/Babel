@@ -101,9 +101,9 @@ public:
         m_clients.push_back(std::make_unique<ASIOClient>(std::move(ip), port));
     }
 
-    void AddClientAt(size_t pos, std::string ip, unsigned short port) override
+    void addClientAt(size_t pos, std::string ip, unsigned short port) override
     {
-        m_clients.emplace(m_clients.begin() + pos, std::make_unique<ASIOClient>(std::move(ip), port));
+        m_clients.insert(m_clients.begin() + pos, std::make_unique<ASIOClient>(std::move(ip), port));
     }
 
     void removeClient(const std::unique_ptr<IClient> &c) override

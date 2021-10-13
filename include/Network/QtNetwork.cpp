@@ -7,6 +7,21 @@ QtClient::QtClient(std::string ip, unsigned short port) : m_endpoint(this)
     m_endpoint.connectToHost(ip.c_str(), port);
 }
 
+std::string QtClient::getIP() const
+{
+    return m_endpoint.peerAddress().toString().toStdString();
+}
+
+std::vector<Network::Packet> &QtClient::getPackets()
+{
+    return m_buffer;
+}
+
+std::vector<Network::Packet> QtClient::popPackets()
+{
+    return std::move(m_buffer);
+}
+
 QtNetwork::QtNetwork(unsigned short port) : m_socket(this)
 {
     if (!m_socket.bind(QHostAddress::AnyIPv4, port))
@@ -34,6 +49,11 @@ void QtNetwork::send(const std::unique_ptr<IClient> &client, Network::Type type,
 void QtNetwork::addClient(std::string ip, unsigned short port)
 {
     m_clients.push_back(std::make_unique<QtClient>(std::move(ip), port));
+}
+
+void QtNetwork::addClientAt(size_t pos, std::string ip, unsigned short port)
+{
+    m_clients.insert(m_clients.begin() + pos, std::make_unique<QtClient>(std::move(ip), port));
 }
 
 void QtNetwork::removeClient(const std::unique_ptr<IClient> &c)

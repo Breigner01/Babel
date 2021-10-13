@@ -12,18 +12,9 @@ public:
 
     QtClient(std::string ip, unsigned short port);
     ~QtClient() override = default;
-    std::string getIP() const override
-    {
-        return m_endpoint.peerAddress().toString().toStdString();
-    }
-    std::vector<Network::Packet> &getPackets() override
-    {
-        return m_buffer;
-    }
-    std::vector<Network::Packet> popPackets() override
-    {
-        return std::move(m_buffer);
-    }
+    std::string getIP() const override;
+    std::vector<Network::Packet> &getPackets() override;
+    std::vector<Network::Packet> popPackets() override;
 };
 
 class QtNetwork : public QObject, public INetwork
@@ -40,6 +31,8 @@ public:
     void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) override;
 
     void addClient(std::string ip, unsigned short port) override;
+
+    void addClientAt(size_t pos, std::string ip, unsigned short port) override;
 
     void removeClient(const std::unique_ptr<IClient> &c) override;
 
