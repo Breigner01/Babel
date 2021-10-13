@@ -24,7 +24,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() = default;
+    ~MainWindow();
     void loadContacts();
     static void callProcess(MainWindow *app, std::string ip);
 

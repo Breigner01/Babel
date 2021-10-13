@@ -71,3 +71,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&m_changeUsername, SIGNAL(clicked()), this, SLOT(changeUsername()));
     connect(&m_changeServer, SIGNAL(clicked()), this, SLOT(parameters()));
 }
+
+MainWindow::~MainWindow()
+{
+    if (m_callPipe) {
+        m_isCalling = false;
+        m_callPipe->join();
+    }
+}
