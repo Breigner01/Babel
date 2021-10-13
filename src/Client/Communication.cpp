@@ -92,7 +92,6 @@ void MainWindow::receiveHandler()
         if (!audio.empty()) {
             for (const auto &packet : audio) {
                 if (packet.type == Network::Type::Song) {
-                    std::cout << "received audio" << std::endl;
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
                 }
             }
