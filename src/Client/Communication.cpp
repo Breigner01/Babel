@@ -82,6 +82,9 @@ void MainWindow::receiveHandler()
             else if (packet.type == Network::Type::EndCall and packet.id == 1) {
                 return (void)QMessageBox::critical(nullptr, "Call Refused", "Call Refused by other person");
             }
+            else if (packet.type == Network::Type::Song and packet.id == 0) {
+                m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
+            }
         }
     }
 }
@@ -148,18 +151,9 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded)
-                app->m_socket->send(app->m_socket->getClients().back(), Network::Type::Song, 1, frame);
+                app->m_socket->send(app->m_socket->getClients().back(), Network::Type::Song, 0, frame);
         }
-        // RECEPTION
-        app->m_socket->receive();
-        auto output = app->m_socket->getClients().back()->popPackets();
-        if (!output.empty()) {
-            for (const auto &packet : output) {
-                if (packet.type == Network::Type::Song) {
-                    app->m_audio->getOutputDevice()->pushBuffer(app->m_encoder->decode(packet.data));
-                }
-            }
-        }
+        
         std::this_thread::yield();
     }
 
