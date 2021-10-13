@@ -153,7 +153,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
 
     app->m_audio->getInputDevice()->stop();
     app->m_audio->getOutputDevice()->stop();
-    app->m_socket->removeClient(app->m_socket->getClients().back());
+    app->m_socket->getClients().erase(app->m_socket->getClients().begin() + 1)
 }
 
 void MainWindow::startCall()
