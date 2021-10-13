@@ -20,7 +20,7 @@ void reloader(MainWindow *app)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_parameters("Parameters"), m_ok("OK")
+    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_ok("OK")
 {
     m_socket = std::make_unique<QtNetwork>(5002);
     m_audio = std::make_unique<PortAudio<short>>();
@@ -46,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_button_layout.setAlignment(Qt::AlignLeft);
     m_button_layout.addWidget(&m_call);
     m_button_layout.addWidget(&m_infoContact);
-    m_button_layout.addWidget(&m_parameters);
+    m_button_layout.addWidget(&m_changeUsername);
+    m_button_layout.addWidget(&m_changeServer);
 
     m_view.setModel(&m_model);
     m_view.setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -67,5 +68,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&m_call, SIGNAL(clicked()), this, SLOT(startCall()));
     connect(&m_infoContact, SIGNAL(clicked()), this, SLOT(infoContact()));
-    connect(&m_parameters, SIGNAL(clicked()), this, SLOT(parameters()));
+    connect(&m_changeUsername, SIGNAL(clicked()), this, SLOT(changeUsername()));
+    connect(&m_changeServer, SIGNAL(clicked()), this, SLOT(parameters()));
 }

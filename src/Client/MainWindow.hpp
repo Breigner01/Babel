@@ -48,17 +48,14 @@ public:
 
     QPushButton m_call;
     QPushButton m_infoContact;
-    QPushButton m_parameters;
+    QPushButton m_changeUsername;
+    QPushButton m_changeServer;
 
     // Call Window
 
     bool m_isCalling = false;
     std::unique_ptr<std::thread> m_callPipe{};
     std::unique_ptr<QWidget> m_callWindow{};
-
-    // Contact List
-
-    QStringList m_contactList;
 
     // add contact win
 
@@ -69,6 +66,7 @@ public:
     QPushButton m_ok;
 
 private slots:
+    void changeUsername();
     void receiveHandler();
     void startCall();
     void infoContact();

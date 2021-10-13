@@ -3,6 +3,7 @@
 
 #include <QNetworkInterface>
 #include <QMessageBox>
+#include <QInputDialog>
 #include "Tools.hpp"
 
 #include <iostream>
@@ -44,7 +45,7 @@ void MainWindow::receiveHandler()
                 show();
             }
             else if (packet.type == Network::Type::UsernameKO and packet.id == 1) {
-                return (void)QMessageBox::critical(nullptr, "Error", "Username already taken :\n" + m_username.text());
+                return (void)QMessageBox::critical(nullptr, "Error", "Username already taken");
             }
             else if (packet.type == Network::Type::Contacts and packet.id == 1) {
                 QStringList list = QString(tools::bufferToString(packet.data).c_str()).split(';');
@@ -100,9 +101,18 @@ void MainWindow::connectToServer()
     }
 }
 
+void MainWindow::changeUsername()
+{
+    bool ok;
+    auto ret = QInputDialog::getText(this, "Change Username", "Enter a new username", QLineEdit::Normal, "", &ok);
+    if (!ok)
+        return;
+    m_socket->send(m_socket->getClients().back(), Network::Type::UsernameOK, 0, tools::stringToBuffer(ret.toStdString()));
+}
+
 void MainWindow::parameters()
 {
-    m_addContactWindow.setWindowTitle("Server");
+    m_addContactWindow.setWindowTitle("Connect to a server");
     m_addContactWindow.resize(250, 130);
 
     m_addContactWindow.setLayout(&m_definitionLayout);
@@ -162,10 +172,9 @@ void MainWindow::startCall()
 {
     QItemSelectionModel *selection = m_view.selectionModel();
     QModelIndex index = selection->currentIndex();
-
     if (!index.isValid())
         return;
+    auto user = m_model.data(index, Qt::DisplayRole);
 
-    auto it = index.row();
-    m_socket->send(m_socket->getClients().front(), Network::Type::RequestCall, 0, tools::stringToBuffer(m_contactList[it].toStdString()));
+    m_socket->send(m_socket->getClients().front(), Network::Type::RequestCall, 0, tools::stringToBuffer(user.toString().toStdString()));
 }
