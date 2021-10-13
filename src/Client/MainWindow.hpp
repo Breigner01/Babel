@@ -57,19 +57,19 @@ public:
     std::unique_ptr<std::thread> m_callPipe{};
     std::unique_ptr<QWidget> m_callWindow{};
 
-    // add contact win
+    // joinServer Window
 
-    QWidget m_addContactWindow;
-    QFormLayout m_definitionLayout;
+    QWidget m_joinServerWindow;
+    QFormLayout m_serverFormLayout;
     QLineEdit m_servIP;
     QLineEdit m_username;
     QPushButton m_ok;
 
 private slots:
+    void joinServer();
+    void connectToServer();
     void changeUsername();
     void receiveHandler();
     void startCall();
     void infoContact();
-    void parameters();
-    void connectToServer();
 };

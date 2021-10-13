@@ -16,11 +16,11 @@ void MainWindow::receiveHandler()
     if (!output.empty()) {
         for (const auto &packet : output) {
             if (packet.type == Network::Type::Connection and packet.id == 1) {
-                m_addContactWindow.hide();
+                m_joinServerWindow.hide();
                 show();
             }
             else if (packet.type == Network::Type::UsernameOK and packet.id == 1) {
-                m_addContactWindow.hide();
+                m_joinServerWindow.hide();
                 show();
             }
             else if (packet.type == Network::Type::UsernameKO and packet.id == 1) {
@@ -108,13 +108,13 @@ void MainWindow::changeUsername()
     m_socket->send(m_socket->getClients().back(), Network::Type::UsernameOK, 0, tools::stringToBuffer(ret.toStdString()));
 }
 
-void MainWindow::parameters()
+void MainWindow::joinServer()
 {
-    m_addContactWindow.setWindowTitle("Connect to a server");
-    m_addContactWindow.resize(250, 130);
+    m_joinServerWindow.setWindowTitle("Connect to a server");
+    m_joinServerWindow.resize(250, 130);
 
-    m_addContactWindow.setLayout(&m_definitionLayout);
-    m_addContactWindow.show();
+    m_joinServerWindow.setLayout(&m_serverFormLayout);
+    m_joinServerWindow.show();
 
     connect(&m_ok, SIGNAL(clicked()), this, SLOT(connectToServer()));
 }

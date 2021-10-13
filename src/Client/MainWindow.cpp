@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&dynamic_cast<QtNetwork *>(m_socket.get())->m_socket, &QUdpSocket::readyRead, this, &MainWindow::receiveHandler);
 
-    parameters();
+    joinServer();
 
     std::thread r(reloader, this);
     r.detach();
@@ -60,9 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Contact Win
 
-    m_definitionLayout.addRow("Server IP :", &m_servIP);
-    m_definitionLayout.addRow("Username :", &m_username);
-    m_definitionLayout.addRow(&m_ok);
+    m_serverFormLayout.addRow("Server IP :", &m_servIP);
+    m_serverFormLayout.addRow("Username :", &m_username);
+    m_serverFormLayout.addRow(&m_ok);
 
     // SIGNALS
 
