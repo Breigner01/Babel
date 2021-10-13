@@ -92,6 +92,7 @@ void MainWindow::receiveHandler()
         if (!audio.empty()) {
             for (const auto &packet : audio) {
                 if (packet.type == Network::Type::Song) {
+                    std::cout << "reicived sound" << std::endl;
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
                 }
             }
@@ -156,7 +157,6 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
     app->m_audio->getOutputDevice()->start();
 
     while (app->m_isCalling) {
-        std::cout << "running" << std::endl;
         auto input = app->m_audio->getInputDevice()->popBuffer();
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
