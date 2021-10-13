@@ -9,27 +9,6 @@
 #include <iostream>
 #include <thread>
 
-/*void MainWindow::parameters()
-{
-    m_addContactWindow.setWindowTitle("Parameters");
-    QItemSelectionModel *selection = m_view.selectionModel();
-    QModelIndex index = selection->currentIndex();
-
-    if (!index.isValid())
-        return;
-
-    m_it = index.row();
-
-    auto info = m_contactList[m_it].split(' ');
-    m_nom.setText(info[0]);
-    m_ip.setText(info[1]);
-
-    m_addContactWindow.setLayout(&m_definitionLayout);
-    m_addContactWindow.show();
-
-    connect(&m_ok, SIGNAL(clicked()), this, SLOT(saveContacts()));
-}*/
-
 void MainWindow::receiveHandler()
 {
     m_socket->receive();
@@ -154,6 +133,9 @@ void MainWindow::infoContact()
 
 void MainWindow::callProcess(MainWindow *app, std::string ip)
 {
+    if (app->m_socket->getClients().size() >= 2)
+        app->m_socket->getClients().erase (app->m_socket->getClients().begin() + 1, app->m_socket->getClients().end());
+
     app->m_socket->addClient(std::move(ip), 5002);
     app->m_audio->getInputDevice()->start();
     app->m_audio->getOutputDevice()->start();
@@ -163,7 +145,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded)
-                app->m_socket->send(app->m_socket->getClients().back(), Network::Type::Song, 0, frame);
+                app->m_socket->send(app->m_socket->getClients()[1], Network::Type::Song, 0, frame);
         }
         
         std::this_thread::yield();
