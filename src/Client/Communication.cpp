@@ -88,6 +88,8 @@ void MainWindow::receiveHandler()
         }
     }
     if (m_socket->getClients().size() >= 2) {
+        for (auto &clie : m_socket->getClients())
+            std::cout << clie->getIP() << std::endl;
         auto audio = m_socket->getClients().back()->popPackets();
         if (!audio.empty()) {
             for (const auto &packet : audio) {
