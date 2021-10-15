@@ -1,4 +1,4 @@
-@startuml
+@startuml Audio
 package Audio <<Folder>> {
     Interface IAudioDevice <typename T> {
         ____
