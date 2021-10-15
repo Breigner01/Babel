@@ -1,4 +1,4 @@
-@startuml
+@startuml Serializer
 package Serializer <<Folder>> {
     Interface IEncoder <typename Raw, typename Compressed> {
         +std::vector<std::vector<Compressed>> encode(const std::vector<Raw> &buffer)
