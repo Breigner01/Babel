@@ -3,7 +3,7 @@
 #include "Exception.hpp"
 #include <cstring>
 
-QtClient::QtClient(std::string ip, unsigned short port) : m_endpoint(this)
+QtClient::QtClient(std::string ip, unsigned short port) : m_endpoint(this), m_port(port)
 {
     m_endpoint.connectToHost(ip.c_str(), port);
 }
@@ -11,6 +11,11 @@ QtClient::QtClient(std::string ip, unsigned short port) : m_endpoint(this)
 std::string QtClient::getIP() const
 {
     return m_endpoint.peerAddress().toString().toStdString();
+}
+
+unsigned short QtClient::getPort() const
+{
+    return m_port;
 }
 
 std::vector<Network::Packet> &QtClient::getPackets()
@@ -67,10 +72,10 @@ void QtNetwork::removeClient(const std::unique_ptr<IClient> &c)
     }
 }
 
-std::unique_ptr<IClient> &QtNetwork::findClient(const std::string &ip)
+std::unique_ptr<IClient> &QtNetwork::findClient(const std::string &ip, unsigned short port)
 {
     for (auto &i : m_clients) {
-        if (i->getIP() == ip)
+        if (i->getIP() == ip and i->getPort() == port)
             return i;
     }
     throw babel::exception("could not find client");
@@ -107,7 +112,7 @@ void QtNetwork::receive()
                 return;
             }
         }
-        m_clients.push_back(std::make_unique<QtClient>(sender.toString().toStdString(), 5002));
+        m_clients.push_back(std::make_unique<QtClient>(sender.toString().toStdString(), port));
         m_clients.back()->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
     }
 }

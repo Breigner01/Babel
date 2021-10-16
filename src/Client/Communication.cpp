@@ -45,7 +45,7 @@ void MainWindow::receiveHandler()
                     m_socket->addClient(m_cliIP, 5002);
                     for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
                         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
-                            m_socket->send(m_socket->findClient(m_cliIP), Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
+                            m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
                             break;
                         }
                     }
@@ -155,7 +155,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded) {
-                app->m_socket->send(app->m_socket->findClient(app->m_cliIP), Network::Type::Song, 0, frame);
+                app->m_socket->send(app->m_socket->findClient(app->m_cliIP, 5002), Network::Type::Song, 0, frame);
             }
         }
         std::this_thread::yield();

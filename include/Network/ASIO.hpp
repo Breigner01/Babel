@@ -22,6 +22,10 @@ public:
     {
         return m_endpoint.address().to_string();
     }
+    unsigned short getPort() const override
+    {
+        return 0;
+    }
     void setEndpoint()
     {
         m_endpoint = asio::ip::udp::endpoint(asio::ip::make_address(getIP()), 5002);
@@ -115,10 +119,10 @@ public:
         }
     }
 
-    std::unique_ptr<IClient> &findClient(const std::string &ip) override
+    std::unique_ptr<IClient> &findClient(const std::string &ip, unsigned short port) override
     {
         for (auto &i : m_clients) {
-            if (i->getIP() == ip)
+            if (i->getIP() == ip and i->getPort() == port)
                 return i;
         }
         throw babel::exception("could not find client");
