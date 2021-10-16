@@ -58,31 +58,25 @@ void MainWindow::receiveHandler()
             }
         }
     }
-    if (m_socket->getClients().size() >= 2) {
-        std::cout << m_socket->getClients().size() << std::endl;
-        for (auto &ccc : m_socket->getClients())
-            std::cout << ccc->getIP() << std::endl;
+    std::cout << m_socket->getClients().size() << std::endl;
+    for (auto &ccc : m_socket->getClients())
+        std::cout << ccc->getIP() << std::endl;
+    if (m_socket->getClients().size() == 2) {
         auto data = m_socket->getClients()[1]->popPackets();
         if (!data.empty()) {
             for (const auto &packet : data) {
-            if (packet.type == Network::Type::Call) {
-                m_socket->addClient(1, tools::bufferToString(packet.data), 5002);
-                if (m_callPipe) {
-                    m_isCalling = false;
-                    m_callPipe->join();
+                if (packet.type == Network::Type::Call) {
+                    m_socket->addClient(1, tools::bufferToString(packet.data), 5002);
+                    if (m_callPipe) {
+                        m_isCalling = false;
+                        m_callPipe->join();
+                    }
+                    m_isCalling = true;
+                    m_callWindow = std::make_unique<QWidget>();
+                    m_callWindow->setWindowTitle("Call");
+                    m_callWindow->show();
+                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
                 }
-                m_isCalling = true;
-                m_callWindow = std::make_unique<QWidget>();
-                m_callWindow->setWindowTitle("Call");
-                m_callWindow->show();
-                m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
-            }
-            }
-        }
-        std::cout << "reivice audio from : " << m_socket->getClients().back()->getIP() << std::endl;
-        auto audio = m_socket->getClients().back()->popPackets();
-        if (!audio.empty()) {
-            for (const auto &packet : audio) {
                 if (packet.type == Network::Type::Song) {
                     std::cout << "reicived sound" << std::endl;
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
@@ -116,7 +110,7 @@ void MainWindow::changeUsername()
     auto ret = QInputDialog::getText(this, "Change Username", "Enter a new username", QLineEdit::Normal, "", &ok);
     if (!ok)
         return;
-    m_socket->send(m_socket->getClients().back(), Network::Type::UsernameOK, 0, tools::stringToBuffer(ret.toStdString()));
+    m_socket->send(m_socket->getClients().front(), Network::Type::UsernameOK, 0, tools::stringToBuffer(ret.toStdString()));
 }
 
 void MainWindow::joinServer()
