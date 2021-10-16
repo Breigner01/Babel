@@ -77,9 +77,8 @@ void MainWindow::receiveHandler()
                         m_isCalling = false;
                         m_callPipe->join();
                     }
-                    if (m_socket->getClients().size() >= 2)
-                        m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
                     m_cliIP = tools::bufferToString(packet.data);
+                    std::cout << "Adding client : " << m_cliIP << std::endl;
                     m_socket->addClient(m_cliIP, 5002);
                     m_isCalling = true;
                     m_callWindow = std::make_unique<QWidget>();
