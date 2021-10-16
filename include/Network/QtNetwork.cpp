@@ -1,5 +1,6 @@
 #include "QtNetwork.hpp"
 #include "QtNetwork.moc"
+#include "Exception.hpp"
 #include <cstring>
 
 QtClient::QtClient(std::string ip, unsigned short port) : m_endpoint(this)
@@ -64,6 +65,15 @@ void QtNetwork::removeClient(const std::unique_ptr<IClient> &c)
             return;
         }
     }
+}
+
+std::unique_ptr<IClient> &QtNetwork::findClient(const std::string &ip)
+{
+    for (auto &i : m_clients) {
+        if (i->getIP() == ip)
+            return i;
+    }
+    throw babel::exception("could not find client");
 }
 
 std::vector<std::unique_ptr<IClient>> &QtNetwork::getClients() noexcept

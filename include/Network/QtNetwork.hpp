@@ -25,18 +25,13 @@ public:
     std::vector<std::unique_ptr<IClient>> m_clients{};
 
     QtNetwork(unsigned short port);
-
     ~QtNetwork() override = default;
 
     void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) override;
-
     void addClient(std::string ip, unsigned short port) override;
-
     void addClientAt(size_t pos, std::string ip, unsigned short port) override;
-
     void removeClient(const std::unique_ptr<IClient> &c) override;
-
+    std::unique_ptr<IClient> &findClient(const std::string &ip) override;
     std::vector<std::unique_ptr<IClient>> &getClients() noexcept override;
-
     void receive() override;
 };

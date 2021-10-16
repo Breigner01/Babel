@@ -62,5 +62,6 @@ public:
     virtual void addClient(std::string ip, unsigned short port) = 0;
     virtual void addClientAt(size_t pos, std::string ip, unsigned short port) = 0;
     virtual void removeClient(const std::unique_ptr<IClient> &c) = 0;
+    virtual std::unique_ptr<IClient> &findClient(const std::string &ip) = 0;
     virtual std::vector<std::unique_ptr<IClient>> &getClients() noexcept = 0;
 };

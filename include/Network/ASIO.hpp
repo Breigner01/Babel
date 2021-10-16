@@ -1,9 +1,8 @@
 #pragma once
 
 #include <asio.hpp>
-#include <vector>
-#include <string>
 #include "INetwork.hpp"
+#include "Exception.hpp"
 
 class ASIOClient : public IClient
 {
@@ -114,6 +113,15 @@ public:
                 return;
             }
         }
+    }
+
+    std::unique_ptr<IClient> &findClient(const std::string &ip) override
+    {
+        for (auto &i : m_clients) {
+            if (i->getIP() == ip)
+                return i;
+        }
+        throw babel::exception("could not find client");
     }
 
     std::vector<std::unique_ptr<IClient>> &getClients() noexcept override
