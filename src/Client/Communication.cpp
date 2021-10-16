@@ -35,15 +35,14 @@ void MainWindow::receiveHandler()
             else if (packet.type == Network::Type::RequestCall and packet.id == 1) {
                 auto reply = QMessageBox::question(nullptr, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
-                    if (m_socket->getClients().size() >= 2)
-                        m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
-
-                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
-                    m_socket->send(m_socket->getClients().back(), Network::Type::Call, 0, packet.data);
                     if (m_callPipe) {
                         m_isCalling = false;
                         m_callPipe->join();
                     }
+                    if (m_socket->getClients().size() >= 2)
+                        m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
+                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5001);
+                    m_socket->send(m_socket->getClients()[1], Network::Type::Call, 0, packet.data);
                     m_isCalling = true;
                     m_callWindow = std::make_unique<QWidget>();
                     m_callWindow->setWindowTitle("Call");
@@ -62,23 +61,27 @@ void MainWindow::receiveHandler()
     if (m_socket->getClients().size() >= 2) {
         for (auto &ccc : m_socket->getClients())
             std::cout << ccc->getIP() << std::endl;
+        auto data = m_socket->getClients()[1]->popPackets();
+        if (!data.empty()) {
+            for (const auto &packet : data) {
+            if (packet.type == Network::Type::Call) {
+                m_socket->addClientAt(1, tools::bufferToString(packet.data), 5001);
+                if (m_callPipe) {
+                    m_isCalling = false;
+                    m_callPipe->join();
+                }
+                m_isCalling = true;
+                m_callWindow = std::make_unique<QWidget>();
+                m_callWindow->setWindowTitle("Call");
+                m_callWindow->show();
+                m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
+            }
+            }
+        }
         auto audio = m_socket->getClients().back()->popPackets();
         if (!audio.empty()) {
             for (const auto &packet : audio) {
-                if (packet.type == Network::Type::Call and packet.id == 1) {
-                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
-                    m_socket->send(m_socket->getClients().back(), Network::Type::Call, 0, packet.data);
-                    if (m_callPipe) {
-                        m_isCalling = false;
-                        m_callPipe->join();
-                    }
-                    m_isCalling = true;
-                    m_callWindow = std::make_unique<QWidget>();
-                    m_callWindow->setWindowTitle("Call");
-                    m_callWindow->show();
-                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
-                }
-                else if (packet.type == Network::Type::Song) {
+                if (packet.type == Network::Type::Song) {
                     std::cout << "reicived sound" << std::endl;
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
                 }

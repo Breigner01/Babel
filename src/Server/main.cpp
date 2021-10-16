@@ -61,20 +61,6 @@ void server_loop()
                             }
                         }
                     }
-                    else if (packet.type == Network::Type::Call and packet.id == 0) {
-                        auto ip = tools::bufferToString(packet.data);
-                        for (auto &cli : socket->getClients()) {
-                            if (cli->getIP() == ip)
-                                socket->send(cli, Network::Type::Call, 1, tools::stringToBuffer(c->getIP()));
-                        }
-                    }
-                    else if (packet.type == Network::Type::EndCall and packet.id == 0) {
-                        auto ip = tools::bufferToString(packet.data);
-                        for (auto &cli : socket->getClients()) {
-                            if (cli->getIP() == ip)
-                                socket->send(cli, Network::Type::EndCall, 1, {});
-                        }
-                    }
                 }
             }
         }
