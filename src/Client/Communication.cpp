@@ -53,7 +53,7 @@ void MainWindow::receiveHandler()
                     m_callWindow = std::make_unique<QWidget>();
                     m_callWindow->setWindowTitle("Call");
                     m_callWindow->show();
-                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
+                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
                 }
                 else {
                     m_socket->send(m_socket->getClients().front(), Network::Type::EndCall, packet.data);
@@ -84,7 +84,7 @@ void MainWindow::receiveHandler()
                     m_callWindow = std::make_unique<QWidget>();
                     m_callWindow->setWindowTitle("Call");
                     m_callWindow->show();
-                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
+                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
                 }
                 if (packet.type == Network::Type::Song) {
                     std::cout << "reicived sound" << std::endl;
@@ -145,7 +145,7 @@ void MainWindow::infoContact()
     QMessageBox::information(nullptr, "Info", "Your IP Adress:\n\n" + ip);
 }
 
-void MainWindow::callProcess(MainWindow *app, std::string ip)
+void MainWindow::callProcess(MainWindow *app)
 {
     app->m_audio->getInputDevice()->start();
     app->m_audio->getOutputDevice()->start();

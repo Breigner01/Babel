@@ -61,6 +61,14 @@ void server_loop()
                             }
                         }
                     }
+                    else if (packet.type == Network::Type::Disconnect) {
+                        for (auto &m : climap) {
+                            if (m.second == c->getIP())
+                                climap.erase(m.first);
+                        }
+                        std::cout << "[CLIENT DISCONNECTED] -> " << c->getIP() << std::endl;
+                        socket->removeClient(c);
+                    }
                 }
             }
         }

@@ -7,7 +7,6 @@
 
 namespace Network {
     enum Type : uint8_t {
-        IP,
         Song,
         RequestCall,
         Call,
@@ -16,7 +15,7 @@ namespace Network {
         Connection,
         UsernameOK,
         UsernameKO,
-        PingAlive,
+        Disconnect,
     };
 
     /**

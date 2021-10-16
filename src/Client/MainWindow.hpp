@@ -26,7 +26,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void loadContacts();
-    static void callProcess(MainWindow *app, std::string ip);
+    static void callProcess(MainWindow *app);
 
     // Frameworks
 
