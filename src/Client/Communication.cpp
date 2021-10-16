@@ -66,7 +66,7 @@ void MainWindow::receiveHandler()
         if (!data.empty()) {
             for (const auto &packet : data) {
                 if (packet.type == Network::Type::Call) {
-                    m_socket->addClient(1, tools::bufferToString(packet.data), 5002);
+                    //m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
                     if (m_callPipe) {
                         m_isCalling = false;
                         m_callPipe->join();
