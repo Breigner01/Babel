@@ -148,7 +148,9 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded)
-                app->m_socket->send(app->m_socket->getClients()[1], Network::Type::Song, 0, frame);
+                app->m_socket->send(app->m_socket->getClients().back(), Network::Type::Song, 0, frame);
+                if (app->m_socket->getClients().size() == 3)
+                    app->m_socket->send(app->m_socket->getClients()[1], Network::Type::Song, 0, frame);
         }
         
         std::this_thread::yield();
