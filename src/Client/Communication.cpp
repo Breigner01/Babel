@@ -59,7 +59,7 @@ void MainWindow::receiveHandler()
         }
     }
     if (m_socket->getClients().size() >= 2) {
-        std::cout << getClients().size() << std::endl;
+        std::cout << m_socket->getClients().size() << std::endl;
         for (auto &ccc : m_socket->getClients())
             std::cout << ccc->getIP() << std::endl;
         auto data = m_socket->getClients()[1]->popPackets();
