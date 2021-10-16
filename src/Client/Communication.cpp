@@ -63,7 +63,7 @@ void MainWindow::receiveHandler()
         std::cout << m_socket->getClients().size() << std::endl;
         for (auto &ccc : m_socket->getClients())
             std::cout << ccc->getIP() << std::endl;
-        auto data = m_socket->getClients()[1]->popPackets();
+        auto data = m_socket->getClients().back()->popPackets();
         if (!data.empty()) {
             for (const auto &packet : data) {
             if (packet.type == Network::Type::Call) {
