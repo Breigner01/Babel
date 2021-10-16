@@ -61,13 +61,11 @@ void MainWindow::receiveHandler()
     std::cout << m_socket->getClients().size() << std::endl;
     for (auto &ccc : m_socket->getClients())
         std::cout << ccc->getIP() << std::endl;
-    if (m_socket->getClients().size() >= 2) {
-        for (size_t i = 0; i < m_socket->getClients().size(); i++) {
-            auto data = m_socket->getClients()[i]->popPackets();
+    if (m_socket->getClients().size() == 2) {
+        auto data = m_socket->getClients()[1]->popPackets();
         if (!data.empty()) {
             for (const auto &packet : data) {
                 if (packet.type == Network::Type::Call) {
-                    m_socket->addClient(tools::bufferToString(packet.data), 5002);
                     if (m_callPipe) {
                         m_isCalling = false;
                         m_callPipe->join();
@@ -83,7 +81,6 @@ void MainWindow::receiveHandler()
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
                 }
             }
-        }
         }
     }
 }
@@ -148,12 +145,9 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded) {
-                app->m_socket->send(app->m_socket->getClients().back(), Network::Type::Song, 0, frame);
-                if (app->m_socket->getClients().size() == 3)
-                    app->m_socket->send(app->m_socket->getClients()[1], Network::Type::Song, 0, frame);
+                app->m_socket->send(app->m_socket->getClients()[1], Network::Type::Song, 0, frame);
             }
         }
-        
         std::this_thread::yield();
     }
 
