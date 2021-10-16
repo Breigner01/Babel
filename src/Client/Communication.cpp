@@ -41,7 +41,6 @@ void MainWindow::receiveHandler()
                     }
                     if (m_socket->getClients().size() >= 2)
                         m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
-                    std::cout << "start to : " << tools::bufferToString(packet.data) << std::endl;
                     m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
                     m_socket->send(m_socket->getClients()[1], Network::Type::Call, 0, packet.data);
                     m_isCalling = true;
@@ -63,7 +62,7 @@ void MainWindow::receiveHandler()
         std::cout << m_socket->getClients().size() << std::endl;
         for (auto &ccc : m_socket->getClients())
             std::cout << ccc->getIP() << std::endl;
-        auto data = m_socket->getClients().back()->popPackets();
+        auto data = m_socket->getClients()[1]->popPackets();
         if (!data.empty()) {
             for (const auto &packet : data) {
             if (packet.type == Network::Type::Call) {
@@ -80,6 +79,7 @@ void MainWindow::receiveHandler()
             }
             }
         }
+        std::cout << "reivice audio from : " << m_socket->getClients().back()->getIP() << std::endl;
         auto audio = m_socket->getClients().back()->popPackets();
         if (!audio.empty()) {
             for (const auto &packet : audio) {
