@@ -41,8 +41,6 @@ void MainWindow::receiveHandler()
                     }
                     if (m_socket->getClients().size() >= 2)
                         m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
-                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
-                    m_socket->send(m_socket->getClients()[1], Network::Type::Call, 0, packet.data);
                     m_isCalling = true;
                     m_callWindow = std::make_unique<QWidget>();
                     m_callWindow->setWindowTitle("Call");
@@ -137,6 +135,14 @@ void MainWindow::infoContact()
 
 void MainWindow::callProcess(MainWindow *app, std::string ip)
 {
+    std::unique_ptr<IClient> call_cli = std::make_unique<QtClient>(ip, 5002);
+    for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
+            app->m_socket->send(call_cli, Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
+            break;
+        }
+    }
+
     app->m_audio->getInputDevice()->start();
     app->m_audio->getOutputDevice()->start();
 
@@ -145,7 +151,8 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded) {
-                app->m_socket->send(app->m_socket->getClients()[1], Network::Type::Song, 0, frame);
+                std::cout << "send audio" << std::endl;
+                app->m_socket->send(call_cli, Network::Type::Song, 0, frame);
             }
         }
         std::this_thread::yield();
