@@ -78,5 +78,4 @@ MainWindow::~MainWindow()
         m_isCalling = false;
         m_callPipe->join();
     }
-    m_socket->send(m_socket->getClients().front(), Network::Type::Disconnect, {});
 }

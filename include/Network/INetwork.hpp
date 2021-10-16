@@ -15,7 +15,6 @@ namespace Network {
         Connection,
         UsernameOK,
         UsernameKO,
-        Disconnect,
     };
 
     /**
