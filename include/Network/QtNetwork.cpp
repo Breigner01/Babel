@@ -97,7 +97,7 @@ void QtNetwork::receive()
                 return;
             }
         }
-        m_clients.push_back(std::make_unique<QtClient>(sender.toString().toStdString(), port));
+        m_clients.push_back(std::make_unique<QtClient>(sender.toString().toStdString(), 5002));
         m_clients.back()->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
     }
 }

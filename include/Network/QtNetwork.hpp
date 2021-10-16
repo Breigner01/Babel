@@ -7,7 +7,7 @@ class QtClient : public QObject, public IClient
 {
     Q_OBJECT
 public:
-    QUdpSocket m_endpoint{};
+    QUdpSocket m_endpoint;
     std::vector<Network::Packet> m_buffer{};
 
     QtClient(std::string ip, unsigned short port);
