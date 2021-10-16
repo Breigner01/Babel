@@ -34,13 +34,12 @@ QtNetwork::QtNetwork(unsigned short port) : m_socket(this)
         throw std::runtime_error("socket bind failed");
 }
 
-void QtNetwork::send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer)
+void QtNetwork::send(const std::unique_ptr<IClient> &client, Network::Type type, const std::vector<uint8_t> &buffer)
 {
     size_t size = buffer.size();
     auto p = reinterpret_cast<Network::Header *>(::operator new (sizeof(Network::Header) + size));
     p->magicValue = 0x42dead42;
     p->type = type;
-    p->id = id;
     p->size = buffer.size();
     std::memcpy(reinterpret_cast<uint8_t *>(p) + sizeof(Network::Header), buffer.data(), size);
     QByteArray datagram;
@@ -55,11 +54,6 @@ void QtNetwork::send(const std::unique_ptr<IClient> &client, Network::Type type,
 void QtNetwork::addClient(std::string ip, unsigned short port)
 {
     m_clients.push_back(std::make_unique<QtClient>(std::move(ip), port));
-}
-
-void QtNetwork::addClientAt(size_t pos, std::string ip, unsigned short port)
-{
-    m_clients.insert(m_clients.begin() + pos, std::make_unique<QtClient>(std::move(ip), port));
 }
 
 void QtNetwork::removeClient(const std::unique_ptr<IClient> &c)
@@ -108,11 +102,11 @@ void QtNetwork::receive()
 
         for (auto &i : m_clients) {
             if (i->getIP() == sender.toString().toStdString()) {
-                i->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
+                i->getPackets().push_back({Network::Type(ret->type), std::move(data)});
                 return;
             }
         }
         m_clients.push_back(std::make_unique<QtClient>(sender.toString().toStdString(), port));
-        m_clients.back()->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
+        m_clients.back()->getPackets().push_back({Network::Type(ret->type), std::move(data)});
     }
 }

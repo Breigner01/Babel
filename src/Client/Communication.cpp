@@ -15,24 +15,24 @@ void MainWindow::receiveHandler()
     auto output = m_socket->getClients().front()->popPackets();
     if (!output.empty()) {
         for (const auto &packet : output) {
-            if (packet.type == Network::Type::Connection and packet.id == 1) {
+            if (packet.type == Network::Type::Connection) {
                 m_joinServerWindow.hide();
                 show();
             }
-            else if (packet.type == Network::Type::UsernameOK and packet.id == 1) {
+            else if (packet.type == Network::Type::UsernameOK) {
                 m_joinServerWindow.hide();
                 show();
             }
-            else if (packet.type == Network::Type::UsernameKO and packet.id == 1) {
+            else if (packet.type == Network::Type::UsernameKO) {
                 return (void)QMessageBox::critical(nullptr, "Error", "Username already taken");
             }
-            else if (packet.type == Network::Type::Contacts and packet.id == 1) {
+            else if (packet.type == Network::Type::Contacts) {
                 QStringList list = QString(tools::bufferToString(packet.data).c_str()).split(';');
                 if (!list.isEmpty() and list.back().isEmpty())
                     list.pop_back();
                 m_model.setStringList(list);
             }
-            else if (packet.type == Network::Type::RequestCall and packet.id == 1) {
+            else if (packet.type == Network::Type::RequestCall) {
                 auto reply = QMessageBox::question(nullptr, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
                     if (m_callPipe) {
@@ -45,7 +45,7 @@ void MainWindow::receiveHandler()
                     m_socket->addClient(m_cliIP, 5002);
                     for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
                         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
-                            m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
+                            m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::Call, tools::stringToBuffer(address.toString().toStdString()));
                             break;
                         }
                     }
@@ -56,10 +56,10 @@ void MainWindow::receiveHandler()
                     m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this, tools::bufferToString(packet.data));
                 }
                 else {
-                    m_socket->send(m_socket->getClients().front(), Network::Type::EndCall, 0, packet.data);
+                    m_socket->send(m_socket->getClients().front(), Network::Type::EndCall, packet.data);
                 }
             }
-            else if (packet.type == Network::Type::EndCall and packet.id == 1) {
+            else if (packet.type == Network::Type::EndCall) {
                 return (void)QMessageBox::critical(nullptr, "Call Refused", "Call Refused by other person");
             }
         }
@@ -97,7 +97,7 @@ void MainWindow::receiveHandler()
 
 void MainWindow::loadContacts()
 {
-    m_socket->send(m_socket->getClients().front(), Network::Type::Contacts, 0, {});
+    m_socket->send(m_socket->getClients().front(), Network::Type::Contacts, {});
 }
 
 void MainWindow::connectToServer()
@@ -106,7 +106,7 @@ void MainWindow::connectToServer()
     m_socket->getClients().clear();
     try {
         m_socket->addClient(m_servIP.text().toStdString(), 5002);
-        m_socket->send(m_socket->getClients().front(), Network::Type::Connection, 0, tools::stringToBuffer(m_username.text().toStdString()));
+        m_socket->send(m_socket->getClients().front(), Network::Type::Connection, tools::stringToBuffer(m_username.text().toStdString()));
     }
     catch (...) {
         return (void)QMessageBox::critical(nullptr, "Error", "Cannot connect to server :\n" + m_servIP.text());
@@ -119,7 +119,7 @@ void MainWindow::changeUsername()
     auto ret = QInputDialog::getText(this, "Change Username", "Enter a new username", QLineEdit::Normal, "", &ok);
     if (!ok)
         return;
-    m_socket->send(m_socket->getClients().front(), Network::Type::UsernameOK, 0, tools::stringToBuffer(ret.toStdString()));
+    m_socket->send(m_socket->getClients().front(), Network::Type::UsernameOK, tools::stringToBuffer(ret.toStdString()));
 }
 
 void MainWindow::joinServer()
@@ -155,7 +155,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded) {
-                app->m_socket->send(app->m_socket->findClient(app->m_cliIP, 5002), Network::Type::Song, 0, frame);
+                app->m_socket->send(app->m_socket->findClient(app->m_cliIP, 5002), Network::Type::Song, frame);
             }
         }
         std::this_thread::yield();
@@ -175,5 +175,5 @@ void MainWindow::startCall()
         return;
     auto user = m_model.data(index, Qt::DisplayRole);
 
-    m_socket->send(m_socket->getClients().front(), Network::Type::RequestCall, 0, tools::stringToBuffer(user.toString().toStdString()));
+    m_socket->send(m_socket->getClients().front(), Network::Type::RequestCall, tools::stringToBuffer(user.toString().toStdString()));
 }

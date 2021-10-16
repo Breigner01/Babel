@@ -13,9 +13,9 @@ public:
     ASIOClient(std::string ip, unsigned short port) : m_endpoint(asio::ip::make_address(ip), port)
     {
     }
-    ASIOClient(asio::ip::udp::endpoint endpoint, Network::Type typeArg, unsigned int idArg, std::vector<uint8_t> dataArg) : m_endpoint(std::move(endpoint))
+    ASIOClient(asio::ip::udp::endpoint endpoint, Network::Type typeArg, std::vector<uint8_t> dataArg) : m_endpoint(std::move(endpoint))
     {
-        m_buffer.push_back({typeArg, idArg, std::move(dataArg)});
+        m_buffer.push_back({typeArg, std::move(dataArg)});
     }
     ~ASIOClient() override = default;
     std::string getIP() const override
@@ -56,13 +56,12 @@ public:
 
     ~ASIO() override = default;
 
-    void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) override
+    void send(const std::unique_ptr<IClient> &client, Network::Type type, const std::vector<uint8_t> &buffer) override
     {
         size_t size = buffer.size();
         auto p = reinterpret_cast<Network::Header *>(::operator new (sizeof(Network::Header) + size));
         p->magicValue = 0x42dead42;
         p->type = type;
-        p->id = id;
         p->size = buffer.size();
         std::memcpy(reinterpret_cast<uint8_t *>(p) + sizeof(Network::Header), buffer.data(), size);
         try {
@@ -92,21 +91,16 @@ public:
 
         for (auto &i : m_clients) {
             if (i->getIP() == endpoint.address().to_string()) {
-                i->getPackets().push_back({Network::Type(ret->type), ret->id, std::move(data)});
+                i->getPackets().push_back({Network::Type(ret->type), std::move(data)});
                 return;
             }
         }
-        m_clients.push_back(std::make_unique<ASIOClient>(std::move(endpoint), Network::Type(ret->type), ret->id, std::move(data)));
+        m_clients.push_back(std::make_unique<ASIOClient>(std::move(endpoint), Network::Type(ret->type), std::move(data)));
     }
 
     void addClient(std::string ip, unsigned short port) override
     {
         m_clients.push_back(std::make_unique<ASIOClient>(std::move(ip), port));
-    }
-
-    void addClientAt(size_t pos, std::string ip, unsigned short port) override
-    {
-        m_clients.insert(m_clients.begin() + pos, std::make_unique<ASIOClient>(std::move(ip), port));
     }
 
     void removeClient(const std::unique_ptr<IClient> &c) override

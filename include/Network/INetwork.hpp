@@ -19,24 +19,17 @@ namespace Network {
         PingAlive,
     };
 
-    enum Method : bool {
-        Get,
-        Post,
-    };
-
     /**
      *  Structure that represents a Header network protocol
      */
     struct Header {
         uint32_t magicValue;
         uint8_t type;
-        uint32_t id;
         uint32_t size;
     };
 
     struct Packet {
         Type type;
-        unsigned int id;
         std::vector<uint8_t> data;
     };
 }
@@ -58,10 +51,9 @@ class INetwork
 {
 public:
     virtual ~INetwork() = default;
-    virtual void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) = 0;
+    virtual void send(const std::unique_ptr<IClient> &client, Network::Type type, const std::vector<uint8_t> &buffer) = 0;
     virtual void receive() = 0;
     virtual void addClient(std::string ip, unsigned short port) = 0;
-    virtual void addClientAt(size_t pos, std::string ip, unsigned short port) = 0;
     virtual void removeClient(const std::unique_ptr<IClient> &c) = 0;
     virtual std::unique_ptr<IClient> &findClient(const std::string &ip, unsigned short port) = 0;
     virtual std::vector<std::unique_ptr<IClient>> &getClients() noexcept = 0;

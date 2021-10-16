@@ -14,19 +14,19 @@ void server_loop()
             auto output = c->popPackets();
             if (!output.empty()) {
                 for (const auto &packet : output) {
-                    if (packet.type == Network::Type::Connection and packet.id == 0) {
+                    if (packet.type == Network::Type::Connection) {
                         std::cout << "[NEW CLIENT] -> " << c->getIP() << std::endl;
                         dynamic_cast<ASIOClient *>(c.get())->setEndpoint();
                         auto username = tools::bufferToString(packet.data);
                         if (climap.find(username) == climap.end()) {
                             climap[username] = c->getIP();
-                            socket->send(c, Network::Type::Connection, 1, {});
+                            socket->send(c, Network::Type::Connection, {});
                         }
                         else {
-                            socket->send(c, Network::Type::UsernameKO, 1, {});
+                            socket->send(c, Network::Type::UsernameKO, {});
                         }
                     }
-                    if (packet.type == Network::Type::UsernameOK and packet.id == 0) {
+                    if (packet.type == Network::Type::UsernameOK) {
                         auto username = tools::bufferToString(packet.data);
                         if (climap.find(username) == climap.end()) {
                             for (auto &cli : climap) {
@@ -35,13 +35,13 @@ void server_loop()
                                     climap[username] = c->getIP();
                                 }
                             }
-                            socket->send(c, Network::Type::UsernameOK, 1, {});
+                            socket->send(c, Network::Type::UsernameOK, {});
                         }
                         else {
-                            socket->send(c, Network::Type::UsernameKO, 1, {});
+                            socket->send(c, Network::Type::UsernameKO, {});
                         }
                     }
-                    else if (packet.type == Network::Type::Contacts and packet.id == 0) {
+                    else if (packet.type == Network::Type::Contacts) {
                         std::string buf{};
                         for (auto &m : climap) {
                             if (m.second != c->getIP()) {
@@ -49,15 +49,15 @@ void server_loop()
                                 buf += ';';
                             }
                         }
-                        socket->send(c, Network::Type::Contacts, 1, tools::stringToBuffer(buf));
+                        socket->send(c, Network::Type::Contacts, tools::stringToBuffer(buf));
                     }
-                    else if (packet.type == Network::Type::RequestCall and packet.id == 0) {
+                    else if (packet.type == Network::Type::RequestCall) {
                         auto username = tools::bufferToString(packet.data);
                         if (climap.find(username) != climap.end()) {
                             auto ip = climap[username];
                             for (auto &cli : socket->getClients()) {
                                 if (cli->getIP() == ip)
-                                    socket->send(cli, Network::Type::RequestCall, 1, tools::stringToBuffer(c->getIP()));
+                                    socket->send(cli, Network::Type::RequestCall, tools::stringToBuffer(c->getIP()));
                             }
                         }
                     }
