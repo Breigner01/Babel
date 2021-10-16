@@ -159,7 +159,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded) {
-                std::cout << "send audio" << std::endl;
+                std::cout << "send to ip : " << app->m_callCli->getIP() << std::endl;
                 app->m_socket->send(app->m_callCli, Network::Type::Song, 0, frame);
             }
         }
