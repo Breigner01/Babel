@@ -35,10 +35,10 @@ void MainWindow::receiveHandler()
             else if (packet.type == Network::Type::RequestCall and packet.id == 1) {
                 auto reply = QMessageBox::question(nullptr, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
-                    if (app->m_socket->getClients().size() >= 2)
-                        app->m_socket->getClients().erase(app->m_socket->getClients().begin() + 1, app->m_socket->getClients().end());
+                    if (m_socket->getClients().size() >= 2)
+                        m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
 
-                    app->m_socket->addClientAt(1, std::move(ip), 5002);
+                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
                     m_socket->send(m_socket->getClients().back(), Network::Type::Call, 0, packet.data);
                     if (m_callPipe) {
                         m_isCalling = false;
