@@ -66,10 +66,8 @@ void MainWindow::receiveHandler()
             }
         }
     }
-    if (m_socket->getClients().size() >= 2) {
-        for (auto &clie : m_socket->getClients())
-            std::cout << clie->getIP() << std::endl;
-        auto audio = m_socket->getClients().back()->popPackets();
+    for (size_t i = 1; i < m_socket->getClients().size(); i++) {
+        auto audio = m_socket->getClients()[i]->popPackets();
         if (!audio.empty()) {
             for (const auto &packet : audio) {
                 if (packet.type == Network::Type::Song) {
@@ -78,7 +76,7 @@ void MainWindow::receiveHandler()
                 }
             }
         }
-    }
+    }   
 }
 
 void MainWindow::loadContacts()
