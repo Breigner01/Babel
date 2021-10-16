@@ -66,6 +66,8 @@ void MainWindow::receiveHandler()
         if (!audio.empty()) {
             for (const auto &packet : audio) {
                 if (packet.type == Network::Type::Call and packet.id == 1) {
+                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
+                    m_socket->send(m_socket->getClients().back(), Network::Type::Call, 0, packet.data);
                     if (m_callPipe) {
                         m_isCalling = false;
                         m_callPipe->join();
