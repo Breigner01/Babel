@@ -41,7 +41,8 @@ void MainWindow::receiveHandler()
                     }
                     if (m_socket->getClients().size() >= 2)
                         m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
-                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5001);
+                    std::cout << "start to : " << tools::bufferToString(packet.data) << std::endl;
+                    m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
                     m_socket->send(m_socket->getClients()[1], Network::Type::Call, 0, packet.data);
                     m_isCalling = true;
                     m_callWindow = std::make_unique<QWidget>();
@@ -66,7 +67,7 @@ void MainWindow::receiveHandler()
         if (!data.empty()) {
             for (const auto &packet : data) {
             if (packet.type == Network::Type::Call) {
-                m_socket->addClientAt(1, tools::bufferToString(packet.data), 5001);
+                m_socket->addClientAt(1, tools::bufferToString(packet.data), 5002);
                 if (m_callPipe) {
                     m_isCalling = false;
                     m_callPipe->join();
