@@ -41,6 +41,13 @@ void MainWindow::receiveHandler()
                     }
                     if (m_socket->getClients().size() >= 2)
                         m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
+                    m_callCli = std::make_unique<QtClient>(tools::bufferToString(packet.data), 5002);
+                    for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+                        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
+                            m_socket->send(m_callCli, Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
+                            break;
+                        }
+                    }
                     m_isCalling = true;
                     m_callWindow = std::make_unique<QWidget>();
                     m_callWindow->setWindowTitle("Call");
@@ -67,6 +74,15 @@ void MainWindow::receiveHandler()
                     if (m_callPipe) {
                         m_isCalling = false;
                         m_callPipe->join();
+                    }
+                    if (m_socket->getClients().size() >= 2)
+                        m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
+                    m_callCli = std::make_unique<QtClient>(tools::bufferToString(packet.data), 5002);
+                    for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+                        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
+                            m_socket->send(m_callCli, Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
+                            break;
+                        }
                     }
                     m_isCalling = true;
                     m_callWindow = std::make_unique<QWidget>();
@@ -135,14 +151,6 @@ void MainWindow::infoContact()
 
 void MainWindow::callProcess(MainWindow *app, std::string ip)
 {
-    std::unique_ptr<IClient> call_cli = std::make_unique<QtClient>(ip, 5002);
-    for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
-            app->m_socket->send(call_cli, Network::Type::Call, 0, tools::stringToBuffer(address.toString().toStdString()));
-            break;
-        }
-    }
-
     app->m_audio->getInputDevice()->start();
     app->m_audio->getOutputDevice()->start();
 
@@ -152,7 +160,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
             auto encoded = app->m_encoder->encode(input);
             for (auto &frame : encoded) {
                 std::cout << "send audio" << std::endl;
-                app->m_socket->send(call_cli, Network::Type::Song, 0, frame);
+                app->m_socket->send(app->m_callCli, Network::Type::Song, 0, frame);
             }
         }
         std::this_thread::yield();
@@ -161,6 +169,7 @@ void MainWindow::callProcess(MainWindow *app, std::string ip)
     app->m_audio->getInputDevice()->stop();
     app->m_audio->getOutputDevice()->stop();
     app->m_socket->getClients().erase(app->m_socket->getClients().begin() + 1);
+    app->m_callCli = nullptr;
 }
 
 void MainWindow::startCall()

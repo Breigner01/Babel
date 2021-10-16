@@ -56,6 +56,7 @@ public:
     bool m_isCalling = false;
     std::unique_ptr<std::thread> m_callPipe{};
     std::unique_ptr<QWidget> m_callWindow{};
+    std::unique_ptr<IClient> m_callCli{};
 
     // joinServer Window
 
