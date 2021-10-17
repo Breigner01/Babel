@@ -35,10 +35,7 @@ void MainWindow::receiveHandler()
             else if (packet.type == Network::Type::RequestCall) {
                 auto reply = QMessageBox::question(this, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
-                    if (m_socket->getClients().size() >= 2)
-                        m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
                     m_cliIP = tools::bufferToString(packet.data);
-                    m_socket->addClient(m_cliIP, 5002);
                     for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
                         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
                             m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::Call, tools::stringToBuffer(address.toString().toStdString()));
@@ -63,7 +60,7 @@ void MainWindow::receiveHandler()
             for (const auto &packet : data) {
                 if (packet.type == Network::Type::Call) {
                     m_cliIP = tools::bufferToString(packet.data);
-                    m_socket->addClient(m_cliIP, 5002);
+                    m_socket->findClient(i->getIP(), 5002);
                     callWindow();
                 }
                 else if (packet.type == Network::Type::Song) {
