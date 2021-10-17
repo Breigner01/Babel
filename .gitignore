@@ -8,11 +8,12 @@
 
 # Build Files and Binaries
 
+babel_client
+babel_server
 *.o
-babel
 *.so
 cmake-build-*/
-build.sh
+build/
 
 # Documentation Generation Files
 

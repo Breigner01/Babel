@@ -1,0 +1,93 @@
+@startuml Network
+package Network <<Folder>> {
+    Interface INetwork  {
+        ____
+        +void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer)
+        +void receive()
+        +void addClient(std::string ip, unsigned short port)
+        +void addClientAt(size_t pos, std::string ip, unsigned short port)
+        +void removeClient(const std::unique_ptr<IClient> &c)
+        +std::vector<std::unique_ptr<IClient>> &getClients() noexcept
+    }
+    Interface IClient  {
+        ____
+        +std::string getIP() const
+        +std::vector<Network::Packet> &getPackets()
+        +std::vector<Network::Packet> popPackets()
+    }
+    
+    namespace Network {
+        enum Type <uint8_t> {
+            IP,
+            Song,
+            RequestCall,
+            Call,
+            EndCall,
+            Contacts,
+            Connection,
+            UsernameOK,
+            UsernameKO,
+            PingAlive,
+        }
+        enum Method <bool> {
+            Get,
+            Post
+        }
+
+        class Header {
+            uint32_t magicValue
+            uint8_t type
+            uint32_t id
+            uint32_t size
+        }
+
+        class Packet {
+            Type type
+            unsigned int id
+            std::vector<uint8_t> data
+        }
+    }
+
+    class ASIOClient {
+        +asio::ip::udp::endpoint m_endpoint
+        +std::vector<Network::Packet> m_buffer{}
+        +void setEndpoint()
+        +std::vector<Network::Packet> &getPackets() override
+        +std::vector<Network::Packet> popPackets() override
+    }
+    IClient <|-- ASIOClient
+    class ASIO {
+        -asio::io_context m_io_context{}
+        -asio::ip::udp::socket m_socket
+        -std::vector<std::unique_ptr<IClient>> m_clients{}
+        +void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) override
+        +void receive() override
+        +void addClient(std::string ip, unsigned short port) override
+        +void addClientAt(size_t pos, std::string ip, unsigned short port) override
+        +void removeClient(const std::unique_ptr<IClient> &c) override
+        +std::vector<std::unique_ptr<IClient>> &getClients() noexcept override
+    }
+    INetwork <|-- ASIO
+
+
+    class QtClient {
+        +QUdpSocket m_endpoint{}
+        +std::vector<Network::Packet> m_buffer{}
+        +std::string getIP() const override
+        +std::vector<Network::Packet> &getPackets() override
+        +std::vector<Network::Packet> popPackets() override
+    }
+    IClient <|-- QtClient
+
+    class QtNetwork {
+        +void send(const std::unique_ptr<IClient> &client, Network::Type type, unsigned int id, const std::vector<uint8_t> &buffer) override
+        +void addClient(std::string ip, unsigned short port) override
+        +void addClientAt(size_t pos, std::string ip, unsigned short port) override
+        +void removeClient(const std::unique_ptr<IClient> &c) override
+        +std::vector<std::unique_ptr<IClient>> &getClients() noexcept override
+        +void receive() override
+    }
+    INetwork <|-- QtNetwork
+}
+
+@enduml
