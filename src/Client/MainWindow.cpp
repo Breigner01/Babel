@@ -131,15 +131,23 @@ void MainWindow::endCall()
     m_mic = true;
     m_sound = true;
     m_callWindow.hide();
-    m_callPipe->join();
-    m_callPipe = nullptr;
+    if (m_callPipe) {
+        m_callPipe->join();
+        m_callPipe = nullptr;
+    }
+}
+
+void MainWindow::emitEndCall()
+{
+    m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::EndCall, {});
+    endCall();
 }
 
 void MainWindow::callWindow()
 {
     m_isCalling = true;
     m_callWindow.setWindowTitle("Call");
-    m_callWindow.resize(250, 250);
+    m_callWindow.resize(250, 100);
 
     m_muteMic.setText("Mute Mic");
     m_muteSound.setText("Mute Sound");
@@ -151,5 +159,5 @@ void MainWindow::callWindow()
 
     connect(&m_muteMic, SIGNAL(clicked()), this, SLOT(muteMic()));
     connect(&m_muteSound, SIGNAL(clicked()), this, SLOT(muteSound()));
-    connect(&m_endCall, SIGNAL(clicked()), this, SLOT(endCall()));
+    connect(&m_endCall, SIGNAL(clicked()), this, SLOT(emitEndCall()));
 }

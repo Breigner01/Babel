@@ -83,5 +83,6 @@ private slots:
 
     void muteMic();
     void muteSound();
+    void emitEndCall();
     void endCall();
 };
