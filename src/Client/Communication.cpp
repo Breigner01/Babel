@@ -118,26 +118,31 @@ void MainWindow::infoContact()
     QMessageBox::information(this, "Info", "Your IP Adress:\n\n" + ip);
 }
 
-void MainWindow::callProcess(MainWindow *app)
+void MainWindow::soundProcess(MainWindow *app)
 {
-    app->m_audio->getInputDevice()->start();
-    app->m_audio->getOutputDevice()->start();
+    try {
+        app->m_audio->getInputDevice()->start();
+        app->m_audio->getOutputDevice()->start();
+    } catch (...) {
+        std::cerr << "Failed to init AudioDevice" << std::endl;
+        return;
+    }
 
-    while (app->m_isCalling) {
-        std::cout << "thread Alive" << std::endl;
+    while (app->m_isOpen) {
         auto input = app->m_audio->getInputDevice()->popBuffer();
-        if (!input.empty()) {
-            auto encoded = app->m_encoder->encode(input);
-            for (auto &frame : encoded) {
-                app->m_socket->send(app->m_socket->findClient(app->m_cliIP, 5002), Network::Type::Song, frame);
+        while (app->m_isCalling) {
+            if (!input.empty()) {
+                auto encoded = app->m_encoder->encode(input);
+                for (auto &frame : encoded)
+                    app->m_socket->send(app->m_socket->findClient(app->m_cliIP, 5002), Network::Type::Song, frame);
             }
         }
         std::this_thread::yield();
     }
-    std::cout << "thread out" << std::endl;
-
-    app->m_audio->getInputDevice()->stop();
-    app->m_audio->getOutputDevice()->stop();
+    try {
+        app->m_audio->getInputDevice()->stop();
+        app->m_audio->getOutputDevice()->stop();
+    } catch (...) {}
 }
 
 void MainWindow::startCall()

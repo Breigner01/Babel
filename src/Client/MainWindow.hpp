@@ -26,7 +26,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void loadContacts();
-    static void callProcess(MainWindow *app);
+    static void soundProcess(MainWindow *app);
     void callWindow();
 
     // Frameworks
@@ -54,8 +54,9 @@ public:
 
     // Call Window
 
+    bool m_isOpen = true;
     bool m_isCalling = false;
-    std::unique_ptr<std::thread> m_callPipe{};
+    std::thread m_soundPipe{};
     std::string m_cliIP{};
     QWidget m_callWindow;
     QHBoxLayout m_callButtonsLayout;

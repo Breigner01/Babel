@@ -20,7 +20,7 @@ void reloader(MainWindow *app)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_ok("OK")
+    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_soundPipe(MainWindow::soundProcess, this), m_ok("OK")
 {
     m_socket = std::make_unique<QtNetwork>(5002);
     m_audio = std::make_unique<PortAudio<short>>();
@@ -84,10 +84,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    if (m_callPipe) {
-        m_isCalling = false;
-        m_callPipe->join();
-    }
+    m_isOpen = false;
+    m_isCalling = false;
+    m_soundPipe.join();
 }
 
 void MainWindow::joinServer()
@@ -135,10 +134,6 @@ void MainWindow::endCall()
     m_mic = true;
     m_sound = true;
     m_callWindow.hide();
-    if (m_callPipe) {
-        m_callPipe->join();
-        m_callPipe = nullptr;
-    }
     m_cliIP.clear();
 }
 
@@ -160,5 +155,4 @@ void MainWindow::callWindow()
 
     m_callWindow.setLayout(&m_callButtonsLayout);
     m_callWindow.show();
-    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
 }
