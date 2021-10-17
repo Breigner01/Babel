@@ -130,7 +130,7 @@ void MainWindow::soundProcess(MainWindow *app)
 
     while (app->m_isOpen) {
         auto input = app->m_audio->getInputDevice()->popBuffer();
-        while (app->m_isCalling) {
+        if (app->m_isCalling) {
             if (!input.empty()) {
                 auto encoded = app->m_encoder->encode(input);
                 for (auto &frame : encoded)
