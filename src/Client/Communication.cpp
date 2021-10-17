@@ -69,10 +69,6 @@ void MainWindow::receiveHandler()
                 else if (packet.type == Network::Type::Song) {
                     std::cout << "reicived sound" << std::endl;
                     m_socket->findClient(i->getIP(), 5002);
-                    std::cout << "find cli" << std::endl;
-                    std::cout << "m_cliIP was : " << m_cliIP << std::endl;
-                    m_cliIP = i->getIP();
-                    std::cout << "m_cliIP is : " << m_cliIP << std::endl;
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
                 }
                 else if (packet.type == Network::Type::EndCall) {
@@ -128,6 +124,7 @@ void MainWindow::callProcess(MainWindow *app)
     app->m_audio->getOutputDevice()->start();
 
     while (app->m_isCalling) {
+        std::cout << "thread Alive" << std::endl;
         auto input = app->m_audio->getInputDevice()->popBuffer();
         if (!input.empty()) {
             auto encoded = app->m_encoder->encode(input);
@@ -137,6 +134,7 @@ void MainWindow::callProcess(MainWindow *app)
         }
         std::this_thread::yield();
     }
+    std::cout << "thread out" << std::endl;
 
     app->m_audio->getInputDevice()->stop();
     app->m_audio->getOutputDevice()->stop();
