@@ -20,7 +20,7 @@ void reloader(MainWindow *app)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_ok("OK")
+    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_muteMic("Mute / Unmute Mic"), m_muteSound("Mute / Unmute Sound"), m_endCall("Hang Up"), m_ok("OK")
 {
     m_socket = std::make_unique<QtNetwork>(5002);
     m_audio = std::make_unique<PortAudio<short>>();
@@ -64,6 +64,12 @@ MainWindow::MainWindow(QWidget *parent)
     m_serverFormLayout.addRow("Username :", &m_username);
     m_serverFormLayout.addRow(&m_ok);
 
+    // Call Win
+
+    m_callButtonsLayout.addWidget(&m_muteMic);
+    m_callButtonsLayout.addWidget(&m_muteSound);
+    m_callButtonsLayout.addWidget(&m_endCall);
+
     // SIGNALS
 
     connect(&m_call, SIGNAL(clicked()), this, SLOT(startCall()));
@@ -78,4 +84,52 @@ MainWindow::~MainWindow()
         m_isCalling = false;
         m_callPipe->join();
     }
+}
+
+void MainWindow::joinServer()
+{
+    m_joinServerWindow.setWindowTitle("Connect to a server");
+    m_joinServerWindow.resize(250, 130);
+
+    m_joinServerWindow.setLayout(&m_serverFormLayout);
+    m_joinServerWindow.show();
+
+    connect(&m_ok, SIGNAL(clicked()), this, SLOT(connectToServer()));
+}
+
+void MainWindow::muteMic()
+{
+    if (m_mic)
+        m_audio->getInputDevice()->mute();
+    else
+        m_audio->getInputDevice()->unmute();
+}
+
+void MainWindow::muteSound()
+{
+    if (m_sound)
+        m_audio->getOutputDevice()->mute();
+    else
+        m_audio->getOutputDevice()->unmute();
+}
+
+void MainWindow::endCall()
+{
+    m_isCalling = false;
+    m_callWindow.hide();
+}
+
+void MainWindow::callWindow()
+{
+    m_isCalling = true;
+    m_callWindow.setWindowTitle("Call");
+    m_callWindow.resize(250, 250);
+
+    m_callWindow.setLayout(&m_callButtonsLayout);
+    m_callWindow.show();
+    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
+
+    connect(&m_muteMic, SIGNAL(clicked()), this, SLOT(muteMic()));
+    connect(&m_muteSound, SIGNAL(clicked()), this, SLOT(muteSound()));
+    connect(&m_endCall, SIGNAL(clicked()), this, SLOT(endCall()));
 }

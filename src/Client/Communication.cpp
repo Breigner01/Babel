@@ -24,7 +24,7 @@ void MainWindow::receiveHandler()
                 show();
             }
             else if (packet.type == Network::Type::UsernameKO) {
-                return (void)QMessageBox::critical(nullptr, "Error", "Username already taken");
+                return (void)QMessageBox::critical(this, "Error", "Username already taken");
             }
             else if (packet.type == Network::Type::Contacts) {
                 QStringList list = QString(tools::bufferToString(packet.data).c_str()).split(';');
@@ -33,7 +33,7 @@ void MainWindow::receiveHandler()
                 m_model.setStringList(list);
             }
             else if (packet.type == Network::Type::RequestCall) {
-                auto reply = QMessageBox::question(nullptr, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
+                auto reply = QMessageBox::question(this, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
                     if (m_callPipe) {
                         m_isCalling = false;
@@ -49,18 +49,14 @@ void MainWindow::receiveHandler()
                             break;
                         }
                     }
-                    m_isCalling = true;
-                    m_callWindow = std::make_unique<QWidget>();
-                    m_callWindow->setWindowTitle("Call");
-                    m_callWindow->show();
-                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
+                    callWindow();
                 }
                 else {
                     m_socket->send(m_socket->getClients().front(), Network::Type::EndCall, packet.data);
                 }
             }
             else if (packet.type == Network::Type::EndCall) {
-                return (void)QMessageBox::critical(nullptr, "Call Refused", "Call Refused by other person");
+                return (void)QMessageBox::critical(this, "Call Refused", "Call Refused by other person");
             }
         }
     }
@@ -80,11 +76,7 @@ void MainWindow::receiveHandler()
                     m_cliIP = tools::bufferToString(packet.data);
                     std::cout << "Adding client : " << m_cliIP << std::endl;
                     m_socket->addClient(m_cliIP, 5002);
-                    m_isCalling = true;
-                    m_callWindow = std::make_unique<QWidget>();
-                    m_callWindow->setWindowTitle("Call");
-                    m_callWindow->show();
-                    m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
+                    callWindow();
                 }
                 if (packet.type == Network::Type::Song) {
                     std::cout << "reicived sound" << std::endl;
@@ -109,7 +101,7 @@ void MainWindow::connectToServer()
         m_socket->send(m_socket->getClients().front(), Network::Type::Connection, tools::stringToBuffer(m_username.text().toStdString()));
     }
     catch (...) {
-        return (void)QMessageBox::critical(nullptr, "Error", "Cannot connect to server :\n" + m_servIP.text());
+        return (void)QMessageBox::critical(this, "Error", "Cannot connect to server :\n" + m_servIP.text());
     }
 }
 
@@ -122,17 +114,6 @@ void MainWindow::changeUsername()
     m_socket->send(m_socket->getClients().front(), Network::Type::UsernameOK, tools::stringToBuffer(ret.toStdString()));
 }
 
-void MainWindow::joinServer()
-{
-    m_joinServerWindow.setWindowTitle("Connect to a server");
-    m_joinServerWindow.resize(250, 130);
-
-    m_joinServerWindow.setLayout(&m_serverFormLayout);
-    m_joinServerWindow.show();
-
-    connect(&m_ok, SIGNAL(clicked()), this, SLOT(connectToServer()));
-}
-
 void MainWindow::infoContact()
 {
     QString ip = "offline";
@@ -142,7 +123,7 @@ void MainWindow::infoContact()
             break;
         }
     }
-    QMessageBox::information(nullptr, "Info", "Your IP Adress:\n\n" + ip);
+    QMessageBox::information(this, "Info", "Your IP Adress:\n\n" + ip);
 }
 
 void MainWindow::callProcess(MainWindow *app)
@@ -165,6 +146,9 @@ void MainWindow::callProcess(MainWindow *app)
     app->m_audio->getOutputDevice()->stop();
     app->m_socket->getClients().erase(app->m_socket->getClients().begin() + 1);
     app->m_cliIP.clear();
+    app->m_callWindow.hide();
+    app->m_mic = true;
+    app->m_sound = true;
 }
 
 void MainWindow::startCall()

@@ -27,6 +27,7 @@ public:
     ~MainWindow();
     void loadContacts();
     static void callProcess(MainWindow *app);
+    void callWindow();
 
     // Frameworks
 
@@ -55,8 +56,14 @@ public:
 
     bool m_isCalling = false;
     std::unique_ptr<std::thread> m_callPipe{};
-    std::unique_ptr<QWidget> m_callWindow{};
     std::string m_cliIP{};
+    QWidget m_callWindow;
+    QHBoxLayout m_callButtonsLayout;
+    bool m_mic = true;
+    QPushButton m_muteMic;
+    bool m_sound = true;
+    QPushButton m_muteSound;
+    QPushButton m_endCall;
 
     // joinServer Window
 
@@ -73,4 +80,8 @@ private slots:
     void receiveHandler();
     void startCall();
     void infoContact();
+
+    void muteMic();
+    void muteSound();
+    void endCall();
 };
