@@ -1,0 +1,21 @@
+@startuml Serializer
+package Serializer <<Folder>> {
+    Interface IEncoder <typename Raw, typename Compressed> {
+        +std::vector<std::vector<Compressed>> encode(const std::vector<Raw> &buffer)
+        +std::vector<Raw> decode(const std::vector<std::vector<Compressed>> &buffer)
+    }
+    
+    Class Opus <typename Raw> {
+        -OpusEncoder *m_encoder
+	    -OpusDecoder *m_decoder
+        -int m_error
+        -int m_framesPerBuffer
+        -int m_channelCount
+        +std::vector<unsigned char> encodeFrame(const typename std::vector<Raw>::const_iterator& frame)
+        +std::vector<std::vector<unsigned char>> encode(const std::vector<Raw> &input)
+        +std::vector<Raw> decodeFrame(const std::vector<unsigned char> &frame)
+        +std::vector<Raw> decode(const std::vector<std::vector<unsigned char>> &input)
+    }
+    IEncoder <|-- Opus
+}
+@enduml

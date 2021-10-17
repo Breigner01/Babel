@@ -1,0 +1,65 @@
+@startuml Audio
+package Audio <<Folder>> {
+    Interface IAudioDevice <typename T> {
+        ____
+        +void start()
+        +void stop()
+        +void mute()
+        +void unmute()
+        -- Buffer manipulation --
+        +std::vector<T> getBuffer()
+        +std::vector<T> popBuffer()
+        +void setBuffer(std::vector<T> buffer)
+        +void pushBuffer(const std::vector<T> &buffer)
+        +void clearBuffer()
+    }
+    Interface IAudio <Typename Input, typename Output> {
+        +std::unique_ptr<IAudioDevice<Input>> &getInputDevice()
+        +std::unique_ptr<IAudioDevice<Output>> &getOutputDevice()
+    }
+
+    Class PortAudio <Typename Input, typename Output>{
+    -PaError m_error
+    -std::unique_ptr<IAudioDevice<Input>> m_inputDevice
+    -std::unique_ptr<IAudioDevice<Output>> m_outputDevice
+    ____
+    .. Simple Getter ..
+    +std::unique_ptr<IAudioDevice<Input>> &getInputDevice()
+    +std::unique_ptr<IAudioDevice<Output>> &getOutputDevice()
+    }
+    IAudio <|-- PortAudio
+
+    Class PortAudioDevice <typename T> {
+        #std::vector<T> m_buffer
+        #mutable std::mutex m_mutex
+        #PaStream *m_stream
+        #PaStreamParameters m_parameters
+        #unsigned long m_framesPerBuffer
+        #double m_sampleRate
+        #bool m_muted
+        ____
+        +void start()
+        +void stop()
+        +void mute()
+        +void unmute()
+        -- Buffer manipulation --
+        +std::vector<T> getBuffer()
+        +std::vector<T> popBuffer()
+        +void setBuffer(std::vector<T> other)
+        +void pushBuffer(const std::vector<T> &other)
+        +void clearBuffer()
+    }
+    IAudioDevice <|-- PortAudioDevice
+
+    Class PortAudioInputDevice <typename T> {
+       +{static} int recordCallback(+6)
+    }
+    PortAudioDevice <|-- PortAudioInputDevice
+
+    Class PortAudioOutputDevice <typename T> {
+        +{static} int playCallback(+6)
+    }
+    PortAudioDevice <|-- PortAudioOutputDevice
+}
+
+@enduml

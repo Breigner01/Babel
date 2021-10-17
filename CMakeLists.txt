@@ -2,15 +2,22 @@ cmake_minimum_required(VERSION 3.17)
 
 project(Babel)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
+set(CMAKE_CXX_STANDARD 20)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 set(CONAN_DISABLE_CHECK_COMPILER 1)
 
-conan_basic_setup()
+conan_basic_setup(TARGETS)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
+
+find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
 
 if (UNIX)
     add_compile_options(-Wall -Wextra -Weffc++)
@@ -18,25 +25,12 @@ else ()
     add_compile_options(/W4)
 endif ()
 
-add_executable(babel
-        src/main.cpp
-        include/Exception.hpp
-        include/TypeChecker.hpp
-        include/Audio/IAudio.hpp
-        include/Audio/PortAudio.hpp
-        include/Audio/PortAudioDevice.hpp
-        include/Audio/PortAudioInputDevice.hpp
-        include/Audio/PortAudioOutputDevice.hpp
-        include/Serializer/IEncoder.hpp
-        include/Serializer/Opus.hpp
-)
+add_subdirectory(src/Client)
+add_subdirectory(src/Server)
 
-target_include_directories(babel PRIVATE
-        include
-)
+add_dependencies(babel_client babel_server)
 
-target_include_directories(babel SYSTEM PRIVATE
-        ${CONAN_INCLUDE_DIRS}
+set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+        ${CMAKE_CURRENT_LIST_DIR}/babel_client
+        ${CMAKE_CURRENT_LIST_DIR}/babel_server
 )
-
-target_link_libraries(babel ${CONAN_LIBS})

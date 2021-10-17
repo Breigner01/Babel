@@ -5,10 +5,15 @@ qt/5.15.2
 asio/1.19.2
 
 [options]
-*:shared=False
+portaudio:shared=False
+opus:shared=False
+qt:shared=True
+libpng:shared=True
+freetype:shared=True
 
 [imports]
 lib, *.so* -> lib
 
 [generators]
 cmake
+cmake_find_package

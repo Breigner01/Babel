@@ -36,12 +36,13 @@ public:
     {
         const T *pData = static_cast<const T *>(pInputBuffer);
         PortAudioInputDevice *c = static_cast<PortAudioInputDevice *>(data);
+
+        if (!pInputBuffer)
+            return paContinue;
+
         std::scoped_lock lock(c->m_mutex);
 
-        if (!pInputBuffer) {
-            return paContinue;
-        }
-        else if (c->m_muted) {
+        if (c->m_muted) {
             for (unsigned long i = 0; i < iFramesPerBuffer; i++)
                 c->m_buffer.push_back(0);
         }

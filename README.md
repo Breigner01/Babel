@@ -26,6 +26,17 @@ cmake --build .
 You will then find the `babel` executable at the root of the repository.
 
 
+## Error occured
+
+```bash
+ls /usr/share/alsa
+ALSA_CONFIG_PATH=/usr/share/alsa/alsa.conf bin/babel
+ALSA_CONFIG_DIR=/usr/share/alsa/ bin/babel
+pactl exit
+pulseaudio --start -D
+ALSA_CONFIG_DIR=/usr/share/alsa/ bin/babel
+```
+
 ## Mandatory part
 
 ### Contents

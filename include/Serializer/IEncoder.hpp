@@ -24,4 +24,5 @@ public:
      *  @return decoded audio
      */
     virtual std::vector<Raw> decode(const std::vector<std::vector<Compressed>> &buffer) = 0;
+    virtual std::vector<Raw> decode(const std::vector<Compressed> &input) = 0;
 };

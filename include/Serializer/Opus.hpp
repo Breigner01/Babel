@@ -91,4 +91,14 @@ public:
         }
         return output;
     }
+
+    std::vector<Raw> decode(const std::vector<unsigned char> &input) override
+    {
+        std::vector<Raw> output{};
+
+        auto dec = decodeFrame(input);
+        for (const auto &d : dec)
+            output.push_back(d);
+        return output;
+    }
 };
