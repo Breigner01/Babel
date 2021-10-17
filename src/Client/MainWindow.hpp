@@ -60,10 +60,10 @@ public:
     QWidget m_callWindow;
     QHBoxLayout m_callButtonsLayout;
     bool m_mic = true;
-    QPushButton m_muteMic;
+    QPushButton m_muteMic{};
     bool m_sound = true;
-    QPushButton m_muteSound;
-    QPushButton m_endCall;
+    QPushButton m_muteSound{};
+    QPushButton m_endCall{};
 
     // joinServer Window
 

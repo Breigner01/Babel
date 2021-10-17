@@ -35,10 +35,6 @@ void MainWindow::receiveHandler()
             else if (packet.type == Network::Type::RequestCall) {
                 auto reply = QMessageBox::question(this, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
-                    if (m_callPipe) {
-                        m_isCalling = false;
-                        m_callPipe->join();
-                    }
                     if (m_socket->getClients().size() >= 2)
                         m_socket->getClients().erase(m_socket->getClients().begin() + 1, m_socket->getClients().end());
                     m_cliIP = tools::bufferToString(packet.data);
@@ -60,21 +56,13 @@ void MainWindow::receiveHandler()
             }
         }
     }
-    std::cout << m_socket->getClients().size() << std::endl;
-    for (auto &ccc : m_socket->getClients())
-        std::cout << ccc->getIP() << std::endl;
     
     for (auto &i : m_socket->getClients()) {
         auto data = i->popPackets();
         if (!data.empty()) {
             for (const auto &packet : data) {
                 if (packet.type == Network::Type::Call) {
-                    if (m_callPipe) {
-                        m_isCalling = false;
-                        m_callPipe->join();
-                    }
                     m_cliIP = tools::bufferToString(packet.data);
-                    std::cout << "Adding client : " << m_cliIP << std::endl;
                     m_socket->addClient(m_cliIP, 5002);
                     callWindow();
                 }
@@ -146,11 +134,7 @@ void MainWindow::callProcess(MainWindow *app)
 
     app->m_audio->getInputDevice()->stop();
     app->m_audio->getOutputDevice()->stop();
-    app->m_socket->getClients().erase(app->m_socket->getClients().begin() + 1);
     app->m_cliIP.clear();
-    app->m_callWindow.hide();
-    app->m_mic = true;
-    app->m_sound = true;
 }
 
 void MainWindow::startCall()

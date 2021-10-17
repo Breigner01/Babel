@@ -20,7 +20,7 @@ void reloader(MainWindow *app)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_muteMic("Mute / Unmute Mic"), m_muteSound("Mute / Unmute Sound"), m_endCall("Hang Up"), m_ok("OK")
+    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_ok("OK")
 {
     m_socket = std::make_unique<QtNetwork>(5002);
     m_audio = std::make_unique<PortAudio<short>>();
@@ -101,10 +101,12 @@ void MainWindow::muteMic()
 {
     if (m_mic) {
         m_audio->getInputDevice()->mute();
+        m_muteMic.setText("Unmute Mic");
         m_mic = false;
     }
     else {
         m_audio->getInputDevice()->unmute();
+        m_muteMic.setText("Mute Mic");
         m_mic = true;
     }
 }
@@ -113,10 +115,12 @@ void MainWindow::muteSound()
 {
     if (m_sound) {
         m_audio->getOutputDevice()->mute();
+        m_muteSound.setText("Unmute Sound");
         m_sound = false;
     }
     else {
         m_audio->getOutputDevice()->unmute();
+        m_muteSound.setText("Mute Sound");
         m_sound = true;
     }
 }
@@ -124,7 +128,11 @@ void MainWindow::muteSound()
 void MainWindow::endCall()
 {
     m_isCalling = false;
+    m_mic = true;
+    m_sound = true;
     m_callWindow.hide();
+    m_callPipe->join();
+    m_callPipe = nullptr;
 }
 
 void MainWindow::callWindow()
@@ -132,6 +140,10 @@ void MainWindow::callWindow()
     m_isCalling = true;
     m_callWindow.setWindowTitle("Call");
     m_callWindow.resize(250, 250);
+
+    m_muteMic.setText("Mute Mic");
+    m_muteSound.setText("Mute Sound");
+    m_endCall.setText("Hang Up");
 
     m_callWindow.setLayout(&m_callButtonsLayout);
     m_callWindow.show();
