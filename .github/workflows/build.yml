@@ -41,7 +41,7 @@ jobs:
             - name: Install Required Dependencies on Ubuntu
               if: ${{ matrix.os == 'ubuntu-latest' }}
               run: |
-                sudo apt install -y libgl-dev g++-11
+                sudo apt install -y libgl-dev g++-11 mesa-common-dev
                 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 60 --slave /usr/bin/g++ g++ /usr/bin/g++-11
 
             - name: Create Build Directory
