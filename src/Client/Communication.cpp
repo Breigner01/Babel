@@ -129,7 +129,6 @@ void MainWindow::soundProcess(MainWindow *app)
                 auto encoded = app->m_encoder->encode(input);
                 for (auto &frame : encoded) {
                     auto &c = app->m_socket->findClient(app->m_cliIP, 5002);
-                    std::cout << "Send to : " << c->getIP() << " - " << c->getPort() << std::endl;
                     app->m_socket->send(c, Network::Type::Song, frame);
                 }
             }
