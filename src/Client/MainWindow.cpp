@@ -20,7 +20,7 @@ void reloader(MainWindow *app)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_soundPipe(MainWindow::soundProcess, this), m_ok("OK")
+    : QMainWindow(parent), m_call("Call"), m_infoContact("Info"), m_changeUsername("Change Username"), m_changeServer("Change Server"), m_ok("OK")
 {
     m_socket = std::make_unique<QtNetwork>(5002);
     m_audio = std::make_unique<PortAudio<short>>();
@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     joinServer();
 
+    m_soundPipe = std::make_unique<std::thread>(MainWindow::soundProcess, this);
     std::thread r(reloader, this);
     r.detach();
 
@@ -86,7 +87,7 @@ MainWindow::~MainWindow()
 {
     m_isOpen = false;
     m_isCalling = false;
-    m_soundPipe.join();
+    m_soundPipe->join();
 }
 
 void MainWindow::joinServer()

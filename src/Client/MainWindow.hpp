@@ -35,6 +35,8 @@ public:
     std::unique_ptr<IAudio<short>> m_audio{};
     std::unique_ptr<IEncoder<short, unsigned char>> m_encoder{};
 
+    std::unique_ptr<std::thread> m_soundPipe{};
+
     // Views
 
     QGroupBox m_groupDefinition;
@@ -56,7 +58,6 @@ public:
 
     bool m_isOpen = true;
     bool m_isCalling = false;
-    std::thread m_soundPipe{};
     std::string m_cliIP{};
     QWidget m_callWindow;
     QHBoxLayout m_callButtonsLayout;
