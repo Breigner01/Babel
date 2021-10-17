@@ -99,18 +99,26 @@ void MainWindow::joinServer()
 
 void MainWindow::muteMic()
 {
-    if (m_mic)
+    if (m_mic) {
         m_audio->getInputDevice()->mute();
-    else
+        m_mic = false;
+    }
+    else {
         m_audio->getInputDevice()->unmute();
+        m_mic = true;
+    }
 }
 
 void MainWindow::muteSound()
 {
-    if (m_sound)
+    if (m_sound) {
         m_audio->getOutputDevice()->mute();
-    else
+        m_sound = false;
+    }
+    else {
         m_audio->getOutputDevice()->unmute();
+        m_sound = true;
+    }
 }
 
 void MainWindow::endCall()

@@ -80,6 +80,8 @@ void MainWindow::receiveHandler()
                 }
                 if (packet.type == Network::Type::Song) {
                     std::cout << "reicived sound" << std::endl;
+                    try {m_socket->findClient(i->getIP(), 5002);}
+                    catch (...) {m_socket->addClient(i->getIP(), 5002);}
                     m_audio->getOutputDevice()->pushBuffer(m_encoder->decode(packet.data));
                 }
             }
