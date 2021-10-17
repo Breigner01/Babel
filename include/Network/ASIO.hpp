@@ -119,7 +119,8 @@ public:
             if (i->getIP() == ip and i->getPort() == port)
                 return i;
         }
-        throw babel::exception("could not find client");
+        addClient(ip, port);
+        return m_clients.back();
     }
 
     std::vector<std::unique_ptr<IClient>> &getClients() noexcept override

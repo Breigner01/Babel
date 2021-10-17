@@ -76,6 +76,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&m_infoContact, SIGNAL(clicked()), this, SLOT(infoContact()));
     connect(&m_changeUsername, SIGNAL(clicked()), this, SLOT(changeUsername()));
     connect(&m_changeServer, SIGNAL(clicked()), this, SLOT(joinServer()));
+
+    connect(&m_muteMic, SIGNAL(clicked()), this, SLOT(muteMic()));
+    connect(&m_muteSound, SIGNAL(clicked()), this, SLOT(muteSound()));
+    connect(&m_endCall, SIGNAL(clicked()), this, SLOT(emitEndCall()));
 }
 
 MainWindow::~MainWindow()
@@ -140,8 +144,7 @@ void MainWindow::endCall()
 
 void MainWindow::emitEndCall()
 {
-    try {m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::EndCall, {});}
-    catch (...) {std::cout << "failed to emit endcall" << std::endl;}
+    m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::EndCall, {});
     endCall();
 }
 
@@ -158,8 +161,4 @@ void MainWindow::callWindow()
     m_callWindow.setLayout(&m_callButtonsLayout);
     m_callWindow.show();
     m_callPipe = std::make_unique<std::thread>(MainWindow::callProcess, this);
-
-    connect(&m_muteMic, SIGNAL(clicked()), this, SLOT(muteMic()));
-    connect(&m_muteSound, SIGNAL(clicked()), this, SLOT(muteSound()));
-    connect(&m_endCall, SIGNAL(clicked()), this, SLOT(emitEndCall()));
 }
