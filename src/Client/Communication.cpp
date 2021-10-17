@@ -137,7 +137,6 @@ void MainWindow::callProcess(MainWindow *app)
 
     app->m_audio->getInputDevice()->stop();
     app->m_audio->getOutputDevice()->stop();
-    app->m_cliIP.clear();
 }
 
 void MainWindow::startCall()

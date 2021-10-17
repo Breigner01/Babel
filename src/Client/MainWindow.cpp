@@ -135,11 +135,13 @@ void MainWindow::endCall()
         m_callPipe->join();
         m_callPipe = nullptr;
     }
+    m_cliIP.clear();
 }
 
 void MainWindow::emitEndCall()
 {
-    m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::EndCall, {});
+    try {m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::EndCall, {});}
+    catch (...) {std::cout << "failed to emit endcall" << std::endl;}
     endCall();
 }
 
