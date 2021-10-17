@@ -36,12 +36,7 @@ void MainWindow::receiveHandler()
                 auto reply = QMessageBox::question(this, "Call Incoming", "Accept ?", QMessageBox::Yes | QMessageBox::No);
                 if (reply == QMessageBox::Yes) {
                     m_cliIP = tools::bufferToString(packet.data);
-                    for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
-                        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
-                            m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::Call, tools::stringToBuffer(address.toString().toStdString()));
-                            break;
-                        }
-                    }
+                    m_socket->send(m_socket->findClient(m_cliIP, 5002), Network::Type::Call, {});
                     callWindow();
                 }
                 else {
@@ -59,7 +54,7 @@ void MainWindow::receiveHandler()
         if (!data.empty()) {
             for (const auto &packet : data) {
                 if (packet.type == Network::Type::Call) {
-                    m_cliIP = tools::bufferToString(packet.data);
+                    m_cliIP = i->getIP();
                     m_socket->findClient(i->getIP(), 5002);
                     callWindow();
                 }
