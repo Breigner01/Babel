@@ -132,6 +132,9 @@ void MainWindow::soundProcess(MainWindow *app)
         auto input = app->m_audio->getInputDevice()->popBuffer();
         if (app->m_isCalling) {
             if (!input.empty()) {
+                std::cout << "InCall" << std::endl;
+                for (auto &c : app->m_socket->getClients())
+                    std::cout << c->getIP() << " - " << c->getPort() << std::endl;
                 auto encoded = app->m_encoder->encode(input);
                 for (auto &frame : encoded)
                     app->m_socket->send(app->m_socket->findClient(app->m_cliIP, 5002), Network::Type::Song, frame);
